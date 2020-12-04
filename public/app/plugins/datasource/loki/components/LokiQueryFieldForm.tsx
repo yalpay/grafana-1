@@ -2,7 +2,6 @@
 import React, { ReactNode } from 'react';
 
 import {
-  ButtonCascader,
   CascaderOption,
   SlatePrism,
   TypeaheadOutput,
@@ -15,6 +14,7 @@ import {
 // Utils & Services
 // dom also includes Element polyfills
 import { Plugin, Node } from 'slate';
+import { LokiLabelBrowser } from './LokiLabelBrowser';
 
 // Types
 import { DOMUtil } from '@grafana/ui';
@@ -87,17 +87,8 @@ export class LokiQueryFieldForm extends React.PureComponent<LokiQueryFieldFormPr
     ];
   }
 
-  loadOptions = (selectedOptions: CascaderOption[]) => {
-    this.props.onLoadOptions(selectedOptions);
-  };
-
-  onChangeLogLabels = (values: string[], selectedOptions: CascaderOption[]) => {
-    if (selectedOptions.length === 2) {
-      const key = selectedOptions[0].value;
-      const value = selectedOptions[1].value;
-      const query = `{${key}="${value}"}`;
-      this.onChangeQuery(query, true);
-    }
+  onChangeLogLabels = (selector: string) => {
+    this.onChangeQuery(selector, true);
   };
 
   onChangeQuery = (value: string, override?: boolean) => {
@@ -151,15 +142,13 @@ export class LokiQueryFieldForm extends React.PureComponent<LokiQueryFieldFormPr
       <>
         <div className="gf-form-inline gf-form-inline--xs-view-flex-column flex-grow-1">
           <div className="gf-form flex-shrink-0 min-width-5">
-            <ButtonCascader
-              options={logLabelOptions || []}
+            <LokiLabelBrowser
+              buttonClass="gf-form-label"
+              buttonText={chooserText}
               disabled={buttonDisabled}
+              languageProvider={lokiLanguageProvider}
               onChange={this.onChangeLogLabels}
-              loadData={onLoadOptions}
-              onPopupVisibleChange={isVisible => isVisible && onLabelsRefresh && onLabelsRefresh()}
-            >
-              {chooserText}
-            </ButtonCascader>
+            />
           </div>
           <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
             <QueryField
