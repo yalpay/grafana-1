@@ -8,6 +8,7 @@ import (
 
 	macaron "gopkg.in/macaron.v1"
 
+	"github.com/grafana/grafana/pkg/middleware/cookies"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -40,7 +41,7 @@ func notAuthorized(c *models.ReqContext) {
 	// remove any forceLogin=true params
 	redirectTo = removeForceLoginParams(redirectTo)
 
-	WriteCookie(c.Resp, "redirect_to", url.QueryEscape(redirectTo), 0, nil)
+	cookies.WriteCookie(c.Resp, "redirect_to", url.QueryEscape(redirectTo), 0, nil)
 	c.Redirect(setting.AppSubUrl + "/login")
 }
 
@@ -114,6 +115,19 @@ func AdminOrFeatureEnabled(enabled bool) macaron.Handler {
 
 		if !enabled {
 			accessForbidden(c)
+		}
+	}
+}
+
+func SnapshotPublicModeOrSignedIn(cfg *setting.Cfg) macaron.Handler {
+	return func(c *models.ReqContext) {
+		if cfg.SnapshotPublicMode {
+			return
+		}
+
+		_, err := c.Invoke(ReqSignedIn)
+		if err != nil {
+			c.JsonApiErr(500, "Failed to invoke required signed in middleware", err)
 		}
 	}
 }

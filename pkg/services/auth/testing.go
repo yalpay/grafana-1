@@ -57,6 +57,8 @@ func NewFakeUserAuthTokenService() *FakeUserAuthTokenService {
 	}
 }
 
+// Init initializes the service.
+// Required for dependency injection.
 func (s *FakeUserAuthTokenService) Init() error {
 	return nil
 }

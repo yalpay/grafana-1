@@ -18,7 +18,6 @@ import (
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/services/sqlstore"
 
-	"github.com/grafana/grafana/pkg/services/middleware"
 	"gopkg.in/macaron.v1"
 
 	"github.com/grafana/grafana/pkg/setting"
@@ -52,10 +51,9 @@ func setupTestEnvironment(t *testing.T, cfg *setting.Cfg) (*macaron.Macaron, *HT
 		RenderService: r,
 	}
 
-	svc := middleware.FakeService(t)
-
 	m := macaron.New()
-	m.Use(svc.ContextHandler)
+	contextHandler := getContextHandler(t)
+	m.Use(contextHandler.Middleware)
 	m.Use(macaron.Renderer(macaron.RenderOptions{
 		Directory:  filepath.Join(setting.StaticRootPath, "views"),
 		IndentJSON: true,
@@ -86,10 +84,12 @@ func TestHTTPServer_GetFrontendSettings_hideVersionAnonyomus(t *testing.T) {
 	setting.Env = "testing"
 
 	tests := []struct {
+		desc        string
 		hideVersion bool
 		expected    settings
 	}{
 		{
+			desc:        "Not hiding version",
 			hideVersion: false,
 			expected: settings{
 				BuildInfo: buildInfo{
@@ -100,6 +100,7 @@ func TestHTTPServer_GetFrontendSettings_hideVersionAnonyomus(t *testing.T) {
 			},
 		},
 		{
+			desc:        "Hiding version",
 			hideVersion: true,
 			expected: settings{
 				BuildInfo: buildInfo{
@@ -112,16 +113,18 @@ func TestHTTPServer_GetFrontendSettings_hideVersionAnonyomus(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		hs.Cfg.AnonymousHideVersion = test.hideVersion
-		expected := test.expected
+		t.Run(test.desc, func(t *testing.T) {
+			hs.Cfg.AnonymousHideVersion = test.hideVersion
+			expected := test.expected
 
-		recorder := httptest.NewRecorder()
-		m.ServeHTTP(recorder, req)
-		got := settings{}
-		err := json.Unmarshal(recorder.Body.Bytes(), &got)
-		require.NoError(t, err)
-		require.GreaterOrEqual(t, 400, recorder.Code, "status codes higher than 400 indicates a failure")
+			recorder := httptest.NewRecorder()
+			m.ServeHTTP(recorder, req)
+			got := settings{}
+			err := json.Unmarshal(recorder.Body.Bytes(), &got)
+			require.NoError(t, err)
+			require.GreaterOrEqual(t, 400, recorder.Code, "status codes higher than 400 indicate a failure")
 
-		assert.EqualValues(t, expected, got)
+			assert.EqualValues(t, expected, got)
+		})
 	}
 }

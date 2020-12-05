@@ -28,6 +28,7 @@ import (
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/registry"
+	"github.com/grafana/grafana/pkg/services/contexthandler"
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/hooks"
 	"github.com/grafana/grafana/pkg/services/login"
@@ -75,7 +76,7 @@ type HTTPServer struct {
 	SearchService        *search.SearchService            `inject:""`
 	ShortURLService      *shorturls.ShortURLService       `inject:""`
 	Live                 *live.GrafanaLive                `inject:""`
-	MiddlewareService    *middleware.MiddlewareService    `inject:""`
+	ContextHandler       *contexthandler.ContextHandler   `inject:""`
 	Listener             net.Listener
 }
 
@@ -101,7 +102,7 @@ func (hs *HTTPServer) Run(ctx context.Context) error {
 		Addr:    net.JoinHostPort(setting.HttpAddr, setting.HttpPort),
 		Handler: hs.macaron,
 	}
-	switch setting.Protocol {
+	switch hs.Cfg.Protocol {
 	case setting.HTTP2Scheme:
 		if err := hs.configureHttp2(); err != nil {
 			return err
@@ -119,7 +120,7 @@ func (hs *HTTPServer) Run(ctx context.Context) error {
 	}
 
 	hs.log.Info("HTTP Server Listen", "address", listener.Addr().String(), "protocol",
-		setting.Protocol, "subUrl", setting.AppSubUrl, "socket", setting.SocketPath)
+		hs.Cfg.Protocol, "subUrl", hs.Cfg.AppSubURL, "socket", hs.Cfg.SocketPath)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -134,7 +135,7 @@ func (hs *HTTPServer) Run(ctx context.Context) error {
 		}
 	}()
 
-	switch setting.Protocol {
+	switch hs.Cfg.Protocol {
 	case setting.HTTPScheme, setting.SocketScheme:
 		if err := hs.httpSrv.Serve(listener); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
@@ -152,7 +153,7 @@ func (hs *HTTPServer) Run(ctx context.Context) error {
 			return err
 		}
 	default:
-		panic(fmt.Sprintf("Unhandled protocol %q", setting.Protocol))
+		panic(fmt.Sprintf("Unhandled protocol %q", hs.Cfg.Protocol))
 	}
 
 	wg.Wait()
@@ -271,7 +272,7 @@ func (hs *HTTPServer) configureHttp2() error {
 }
 
 func (hs *HTTPServer) newMacaron() *macaron.Macaron {
-	macaron.Env = setting.Env
+	macaron.Env = hs.Cfg.Env
 	m := macaron.New()
 
 	// automatically set HEAD for every GET
@@ -294,13 +295,13 @@ func (hs *HTTPServer) applyRoutes() {
 func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 	m := hs.macaron
 
-	m.Use(hs.MiddlewareService.Logger)
+	m.Use(middleware.Logger(hs.Cfg))
 
 	if setting.EnableGzip {
 		m.Use(hs.MiddlewareService.Gzipper)
 	}
 
-	m.Use(hs.MiddlewareService.Recovery)
+	m.Use(middleware.Recovery(hs.Cfg))
 
 	for _, route := range plugins.StaticRoutes {
 		pluginRoute := path.Join("/public/plugins/", route.PluginId)
@@ -316,7 +317,7 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 		hs.mapStatic(m, hs.Cfg.ImagesDir, "", "/public/img/attachments")
 	}
 
-	m.Use(hs.MiddlewareService.AddDefaultResponseHeaders)
+	m.Use(middleware.AddDefaultResponseHeaders(hs.Cfg))
 
 	if setting.ServeFromSubPath && setting.AppSubUrl != "" {
 		m.SetURLPrefix(setting.AppSubUrl)
@@ -334,12 +335,12 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 	m.Use(hs.apiHealthHandler)
 	m.Use(hs.metricsEndpoint)
 
-	m.Use(hs.MiddlewareService.ContextHandler)
+	m.Use(hs.ContextHandler.Middleware)
 	m.Use(hs.MiddlewareService.OrgRedirect)
 
 	// needs to be after context handler
 	if setting.EnforceDomain {
-		m.Use(hs.MiddlewareService.ValidateHostHeader)
+		m.Use(middleware.ValidateHostHeader(hs.Cfg.Domain))
 	}
 
 	m.Use(hs.MiddlewareService.HandleNoCacheHeader)
@@ -429,7 +430,7 @@ func (hs *HTTPServer) mapStatic(m *macaron.Macaron, rootDir string, dir string, 
 		}
 	}
 
-	if setting.Env == setting.Dev {
+	if hs.Cfg.Env == setting.Dev {
 		headers = func(c *macaron.Context) {
 			c.Resp.Header().Set("Cache-Control", "max-age=0, must-revalidate, no-cache")
 		}

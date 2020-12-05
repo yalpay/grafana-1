@@ -29,7 +29,11 @@ const (
 
 func init() {
 	rc := &RemoteCache{}
-	rc.Register()
+	registry.Register(&registry.Descriptor{
+		Name:         ServiceName,
+		Instance:     rc,
+		InitPriority: registry.Medium,
+	})
 }
 
 // CacheStorage allows the caller to set, get and delete items in the cache.

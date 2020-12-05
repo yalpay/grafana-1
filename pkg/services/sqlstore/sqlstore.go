@@ -44,7 +44,17 @@ const InitPriority = registry.High
 
 func init() {
 	ss := &SQLStore{}
-	ss.Register()
+
+	// This change will make xorm use an empty default schema for postgres and
+	// by that mimic the functionality of how it was functioning before
+	// xorm's changes above.
+	xorm.DefaultPostgresSchema = ""
+
+	registry.Register(&registry.Descriptor{
+		Name:         ServiceName,
+		Instance:     ss,
+		InitPriority: InitPriority,
+	})
 }
 
 type SQLStore struct {
