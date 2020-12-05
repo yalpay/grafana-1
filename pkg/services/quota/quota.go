@@ -34,6 +34,7 @@ func (qs *QuotaService) QuotaReached(c *models.ReqContext, target string) (bool,
 	if c == nil {
 		return false, nil
 	}
+
 	// get the list of scopes that this target is valid for. Org, User, Global
 	scopes, err := qs.getQuotaScopes(target)
 	if err != nil {
