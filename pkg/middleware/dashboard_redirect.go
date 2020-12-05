@@ -12,7 +12,6 @@ import (
 func getDashboardURLBySlug(orgID int64, slug string) (string, error) {
 	// TODO: Drop bus call
 	query := models.GetDashboardQuery{Slug: slug, OrgId: orgID}
-
 	if err := bus.Dispatch(&query); err != nil {
 		return "", models.ErrDashboardNotFound
 	}

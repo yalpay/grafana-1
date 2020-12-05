@@ -322,7 +322,7 @@ func TestLoginPostRedirect(t *testing.T) {
 	defer resetSetIndexViewData()
 
 	mockViewIndex()
-	defer resetViewIndex()
+	t.Cleanup(resetViewIndex)
 	sc := setupScenarioContext(t, "/login")
 	hs := &HTTPServer{
 		log:              &FakeLogger{},

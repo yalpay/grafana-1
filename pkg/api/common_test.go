@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/infra/fs"
 	"github.com/grafana/grafana/pkg/infra/remotecache"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/registry"
@@ -26,7 +27,7 @@ func loggedInUserScenario(t *testing.T, desc string, url string, fn scenarioFunc
 
 func loggedInUserScenarioWithRole(t *testing.T, desc string, method string, url string, routePattern string, role models.RoleType, fn scenarioFunc) {
 	t.Run(fmt.Sprintf("%s %s", desc, url), func(t *testing.T) {
-		defer bus.ClearBusHandlers()
+		t.Cleanup(bus.ClearBusHandlers)
 
 		sc := setupScenarioContext(t, url)
 		sc.defaultHandler = Wrap(func(c *models.ReqContext) Response {
@@ -193,6 +194,9 @@ func setupScenarioContext(t *testing.T, url string) *scenarioContext {
 	}
 	viewsPath, err := filepath.Abs("../../public/views")
 	require.NoError(t, err)
+	exists, err := fs.Exists(viewsPath)
+	require.NoError(t, err)
+	require.Truef(t, exists, "Views should be in %q", viewsPath)
 
 	sc.m = macaron.New()
 	sc.m.Use(macaron.Renderer(macaron.RenderOptions{

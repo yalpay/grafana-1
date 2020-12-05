@@ -123,6 +123,7 @@ func TestMiddlewareContext(t *testing.T) {
 				Settings: map[string]interface{}{},
 				NavTree:  []*dtos.NavLink{},
 			}
+			t.Log("Calling HTML", "data", data, "render", c.Render)
 			c.HTML(200, "index-template", data)
 			t.Log("Returned HTML with code 200")
 		}
