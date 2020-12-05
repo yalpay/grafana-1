@@ -264,7 +264,7 @@ func createGrafDir(t *testing.T) (string, string) {
 	return tmpDir, cfgPath
 }
 
-func startGrafana(t *testing.T, grafDir, cfgPath string, sqlStore *sqlstore.SqlStore) string {
+func startGrafana(t *testing.T, grafDir, cfgPath string, sqlStore *sqlstore.SQLStore) string {
 	t.Helper()
 
 	origSQLStore := registry.GetService(sqlstore.ServiceName)
@@ -310,7 +310,7 @@ func startGrafana(t *testing.T, grafDir, cfgPath string, sqlStore *sqlstore.SqlS
 	return addr
 }
 
-func setUpDatabase(t *testing.T, grafDir string) *sqlstore.SqlStore {
+func setUpDatabase(t *testing.T, grafDir string) *sqlstore.SQLStore {
 	t.Helper()
 
 	sqlStore := sqlstore.InitTestDB(t)
