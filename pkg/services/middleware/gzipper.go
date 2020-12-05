@@ -4,13 +4,15 @@ import (
 	"strings"
 
 	"github.com/go-macaron/gzip"
+	"github.com/grafana/grafana/pkg/infra/log"
 	"gopkg.in/macaron.v1"
 )
 
 const resourcesPath = "/resources"
 
-func (s *MiddlewareService) Gzipper() macaron.Handler {
-	gzipper := gzip.Gziper()
+func Gziper() macaron.Handler {
+	gziperLogger := log.New("gziper")
+	gziper := gzip.Gziper()
 
 	return func(ctx *macaron.Context) {
 		requestPath := ctx.Req.URL.RequestURI()
@@ -28,13 +30,12 @@ func (s *MiddlewareService) Gzipper() macaron.Handler {
 		}
 
 		// ignore resources
-		if (strings.HasPrefix(requestPath, "/api/datasources/") || strings.HasPrefix(requestPath, "/api/plugins/")) &&
-			strings.Contains(requestPath, resourcesPath) {
+		if (strings.HasPrefix(requestPath, "/api/datasources/") || strings.HasPrefix(requestPath, "/api/plugins/")) && strings.Contains(requestPath, resourcesPath) {
 			return
 		}
 
-		if _, err := ctx.Invoke(gzipper); err != nil {
-			s.logger.Error("Invoking gzip handler failed", "err", err)
+		if _, err := ctx.Invoke(gziper); err != nil {
+			gziperLogger.Error("Invoking gzip handler failed", "err", err)
 		}
 	}
 }

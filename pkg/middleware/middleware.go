@@ -1,6 +1,14 @@
 package middleware
 
-import "github.com/grafana/grafana/pkg/models"
+import (
+	"fmt"
+	"strings"
+
+	macaron "gopkg.in/macaron.v1"
+
+	"github.com/grafana/grafana/pkg/models"
+	"github.com/grafana/grafana/pkg/setting"
+)
 
 var (
 	ReqGrafanaAdmin = Auth(&AuthOptions{

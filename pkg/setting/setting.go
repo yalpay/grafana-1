@@ -1116,8 +1116,6 @@ func readAuthSettings(iniFile *ini.File, cfg *Cfg) (err error) {
 		}
 	}
 
-	cfg.AuthProxyHeaders = AuthProxyHeaders
-
 	return nil
 }
 

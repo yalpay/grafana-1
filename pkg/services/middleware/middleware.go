@@ -461,7 +461,7 @@ func (s *MiddlewareService) AddDefaultResponseHeaders(ctx *macaron.Context) {
 	})
 }
 
-// AddSecurityHeaders adds various HTTP(S) response headers that enable various security protections behaviors in the client's browser.
+// addSecurityHeaders adds various HTTP(S) response headers that enable various security protections behaviors in the client's browser.
 func (s *MiddlewareService) addSecurityHeaders(w macaron.ResponseWriter) {
 	if (s.Cfg.Protocol == setting.HTTPSScheme || s.Cfg.Protocol == setting.HTTP2Scheme) &&
 		s.Cfg.StrictTransportSecurity {

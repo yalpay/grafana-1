@@ -32,7 +32,7 @@ func TestMiddlewareBasicAuth(t *testing.T) {
 		})
 
 		authHeader := util.GetBasicAuthHeader("api_key", "eyJrIjoidjVuQXdwTWFmRlA2em5hUzR1cmhkV0RMUzU1MTFNNDIiLCJuIjoiYXNkIiwiaWQiOjF9")
-		sc.fakeReq(t, "GET", "/").withAuthorizationHeader(authHeader).exec(t)
+		sc.fakeReq("GET", "/").withAuthorizationHeader(authHeader).exec()
 
 		require.Equal(t, 200, sc.resp.Code)
 
@@ -66,7 +66,7 @@ func TestMiddlewareBasicAuth(t *testing.T) {
 		})
 
 		authHeader := util.GetBasicAuthHeader("myUser", password)
-		sc.fakeReq(t, "GET", "/").withAuthorizationHeader(authHeader).exec(t)
+		sc.fakeReq("GET", "/").withAuthorizationHeader(authHeader).exec()
 
 		assert.True(t, sc.context.IsSignedIn)
 		assert.Equal(t, orgID, sc.context.OrgId)
@@ -77,18 +77,7 @@ func TestMiddlewareBasicAuth(t *testing.T) {
 		const password = "MyPass"
 		const salt = "Salt"
 
-		bus.AddHandler("grafana-auth", func(query *models.LoginUserQuery) error {
-			encoded, err := util.EncodePassword(password, salt)
-			if err != nil {
-				return err
-			}
-			query.User = &models.User{
-				Id:       id,
-				Password: encoded,
-				Salt:     salt,
-			}
-			return nil
-		})
+		login.Init()
 
 		bus.AddHandler("user-query", func(query *models.GetUserByLoginQuery) error {
 			encoded, err := util.EncodePassword(password, salt)

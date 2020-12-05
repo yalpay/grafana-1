@@ -27,7 +27,7 @@ func NewFakeStore(t *testing.T) *RemoteCache {
 	}
 
 	err := dc.Init()
-	require.NoError(t, err, "failed to init remote cache for test")
+	require.NoError(t, err, "Failed to init remote cache for test")
 
 	return dc
 }

@@ -124,7 +124,6 @@ func (ss *SQLStore) Init() error {
 	ss.addPreferencesQueryAndCommandHandlers()
 
 	if ss.skipEnsureDefaultOrgAndUser {
-		panic("Hrmr!")
 		return nil
 	}
 

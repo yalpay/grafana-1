@@ -59,15 +59,6 @@ type RemoteCache struct {
 	Cfg      *setting.Cfg       `inject:""`
 }
 
-// Register registers the RemoteCache service with the DI system.
-func (ds *RemoteCache) Register() {
-	registry.Register(&registry.Descriptor{
-		Name:         ServiceName,
-		Instance:     ds,
-		InitPriority: registry.Medium,
-	})
-}
-
 // Get reads object from Cache
 func (ds *RemoteCache) Get(key string) (interface{}, error) {
 	return ds.client.Get(key)

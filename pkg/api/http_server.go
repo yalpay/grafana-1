@@ -25,6 +25,7 @@ import (
 	"github.com/grafana/grafana/pkg/infra/localcache"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/remotecache"
+	"github.com/grafana/grafana/pkg/middleware"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/registry"
@@ -32,7 +33,6 @@ import (
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/hooks"
 	"github.com/grafana/grafana/pkg/services/login"
-	"github.com/grafana/grafana/pkg/services/middleware"
 	"github.com/grafana/grafana/pkg/services/provisioning"
 	"github.com/grafana/grafana/pkg/services/quota"
 	"github.com/grafana/grafana/pkg/services/rendering"
@@ -298,7 +298,7 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 	m.Use(middleware.Logger(hs.Cfg))
 
 	if setting.EnableGzip {
-		m.Use(hs.MiddlewareService.Gzipper)
+		m.Use(middleware.Gziper())
 	}
 
 	m.Use(middleware.Recovery(hs.Cfg))
@@ -336,14 +336,14 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 	m.Use(hs.metricsEndpoint)
 
 	m.Use(hs.ContextHandler.Middleware)
-	m.Use(hs.MiddlewareService.OrgRedirect)
+	m.Use(middleware.OrgRedirect())
 
 	// needs to be after context handler
 	if setting.EnforceDomain {
 		m.Use(middleware.ValidateHostHeader(hs.Cfg.Domain))
 	}
 
-	m.Use(hs.MiddlewareService.HandleNoCacheHeader)
+	m.Use(middleware.HandleNoCacheHeader())
 
 	for _, mw := range hs.middlewares {
 		m.Use(mw)
