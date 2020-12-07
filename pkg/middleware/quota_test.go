@@ -212,7 +212,6 @@ func TestMiddlewareQuota(t *testing.T) {
 }
 
 func getQuotaHandler(sc *scenarioContext, target string) macaron.Handler {
-
 	fakeAuthTokenService := auth.NewFakeUserAuthTokenService()
 	qs := &quota.QuotaService{
 		AuthTokenService: fakeAuthTokenService,

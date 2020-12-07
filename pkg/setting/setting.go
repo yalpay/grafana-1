@@ -126,8 +126,7 @@ var (
 	ViewersCanEdit          bool
 
 	// HTTP auth
-	AdminUser        string
-	AdminPassword    string
+	// TODO: Remove
 	LoginCookieName  string
 	LoginMaxLifetime time.Duration
 	SigV4AuthEnabled bool
@@ -271,6 +270,8 @@ type Cfg struct {
 	TokenRotationIntervalMinutes int
 	SigV4AuthEnabled             bool
 	BasicAuthEnabled             bool
+	AdminUser                    string
+	AdminPassword                string
 
 	// Auth proxy settings
 	AuthProxyEnabled          bool
@@ -1013,8 +1014,8 @@ func readSecuritySettings(iniFile *ini.File, cfg *Cfg) error {
 
 	// admin
 	cfg.DisableInitAdminCreation = security.Key("disable_initial_admin_creation").MustBool(false)
-	AdminUser = valueAsString(security, "admin_user", "")
-	AdminPassword = valueAsString(security, "admin_password", "")
+	cfg.AdminUser = valueAsString(security, "admin_user", "")
+	cfg.AdminPassword = valueAsString(security, "admin_password", "")
 
 	return nil
 }
@@ -1022,8 +1023,8 @@ func readSecuritySettings(iniFile *ini.File, cfg *Cfg) error {
 func readAuthSettings(iniFile *ini.File, cfg *Cfg) (err error) {
 	auth := iniFile.Section("auth")
 
-	LoginCookieName = valueAsString(auth, "login_cookie_name", "grafana_session")
-	cfg.LoginCookieName = LoginCookieName
+	cfg.LoginCookieName = valueAsString(auth, "login_cookie_name", "grafana_session")
+	LoginCookieName = cfg.LoginCookieName
 	maxInactiveDaysVal := auth.Key("login_maximum_inactive_lifetime_days").MustString("")
 	if maxInactiveDaysVal != "" {
 		maxInactiveDaysVal = fmt.Sprintf("%sd", maxInactiveDaysVal)

@@ -130,6 +130,7 @@ func (sc *scenarioContext) fakeReqNoAssertionsWithCookie(method, url string, coo
 
 type scenarioContext struct {
 	t                    *testing.T
+	cfg                  *setting.Cfg
 	m                    *macaron.Macaron
 	context              *models.ReqContext
 	resp                 *httptest.ResponseRecorder
@@ -147,12 +148,15 @@ func (sc *scenarioContext) exec() {
 type scenarioFunc func(c *scenarioContext)
 type handlerFunc func(c *models.ReqContext) Response
 
-func getContextHandler(t *testing.T) *contexthandler.ContextHandler {
+func getContextHandler(t *testing.T, cfg *setting.Cfg) *contexthandler.ContextHandler {
 	t.Helper()
+
+	if cfg == nil {
+		cfg = setting.NewCfg()
+	}
 
 	sqlStore := sqlstore.InitTestDB(t)
 	remoteCacheSvc := &remotecache.RemoteCache{}
-	cfg := setting.NewCfg()
 	cfg.RemoteCacheOptions = &setting.RemoteCacheOptions{
 		Name: "database",
 	}
@@ -188,9 +192,11 @@ func getContextHandler(t *testing.T) *contexthandler.ContextHandler {
 }
 
 func setupScenarioContext(t *testing.T, url string) *scenarioContext {
+	cfg := setting.NewCfg()
 	sc := &scenarioContext{
 		url: url,
 		t:   t,
+		cfg: cfg,
 	}
 	viewsPath, err := filepath.Abs("../../public/views")
 	require.NoError(t, err)
