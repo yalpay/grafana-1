@@ -31,7 +31,6 @@ import (
 	"github.com/grafana/grafana/pkg/util"
 )
 
-
 func fakeGetTime() func() time.Time {
 	var timeSeed int64
 	return func() time.Time {

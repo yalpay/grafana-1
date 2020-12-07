@@ -11,7 +11,6 @@ import (
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/auth"
-	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -80,13 +79,9 @@ func initTokenRotationScenario(ctx context.Context, t *testing.T, ctxHdlr *Conte
 	*models.ReqContext, *httptest.ResponseRecorder, error) {
 	t.Helper()
 
-	origLoginMaxLifetime := setting.LoginMaxLifetime
-	t.Cleanup(func() {
-		setting.LoginMaxLifetime = origLoginMaxLifetime
-	})
 	ctxHdlr.Cfg.LoginCookieName = "login_token"
 	var err error
-	setting.LoginMaxLifetime, err = gtime.ParseDuration("7d")
+	ctxHdlr.Cfg.LoginMaxLifetime, err = gtime.ParseDuration("7d")
 	if err != nil {
 		return nil, nil, err
 	}

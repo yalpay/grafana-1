@@ -209,7 +209,7 @@ func setupScenarioContext(t *testing.T, url string) *scenarioContext {
 		Directory: viewsPath,
 		Delims:    macaron.Delims{Left: "[[", Right: "]]"},
 	}))
-	sc.m.Use(getContextHandler(t).Middleware)
+	sc.m.Use(getContextHandler(t, cfg).Middleware)
 
 	return sc
 }
