@@ -86,7 +86,7 @@ type redirectCase struct {
 	redirectURL string
 }
 
-func TestLoginErrorCookieApiEndpoint(t *testing.T) {
+func TestLoginErrorCookieAPIEndpoint(t *testing.T) {
 	mockSetIndexViewData()
 	defer resetSetIndexViewData()
 
@@ -94,8 +94,9 @@ func TestLoginErrorCookieApiEndpoint(t *testing.T) {
 	defer resetViewIndex()
 
 	sc := setupScenarioContext(t, "/login")
+	cfg := setting.NewCfg()
 	hs := &HTTPServer{
-		Cfg:     setting.NewCfg(),
+		Cfg:     cfg,
 		License: &licensing.OSSLicensingService{},
 	}
 
@@ -103,7 +104,9 @@ func TestLoginErrorCookieApiEndpoint(t *testing.T) {
 		hs.LoginView(c)
 	})
 
+	// TODO: Remove
 	setting.LoginCookieName = "grafana_session"
+	cfg.LoginCookieName = "grafana_session"
 	setting.SecretKey = "login_testing"
 
 	setting.OAuthService = &setting.OAuther{}
@@ -559,14 +562,13 @@ func TestAuthProxyLoginEnableLoginTokenDisabled(t *testing.T) {
 
 func TestAuthProxyLoginWithEnableLoginToken(t *testing.T) {
 	sc := setupAuthProxyLoginTest(t, true)
+	require.Equal(t, sc.resp.Code, 302)
 
-	assert.Equal(t, sc.resp.Code, 302)
 	location, ok := sc.resp.Header()["Location"]
 	assert.True(t, ok)
 	assert.Equal(t, location[0], "/")
-
-	setCookie, ok := sc.resp.Header()["Set-Cookie"]
-	assert.True(t, ok, "Set-Cookie exists")
+	setCookie := sc.resp.Header()["Set-Cookie"]
+	require.NotNil(t, setCookie, "Set-Cookie should exist")
 	assert.Equal(t, "grafana_session=; Path=/; Max-Age=0; HttpOnly", setCookie[0])
 }
 
