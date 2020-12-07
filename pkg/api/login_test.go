@@ -25,7 +25,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mockSetIndexViewData() {
+func fakeSetIndexViewData(t *testing.T) {
+	origSetIndexViewData := setIndexViewData
+	t.Cleanup(func() {
+		setIndexViewData = origSetIndexViewData
+	})
 	setIndexViewData = func(*HTTPServer, *models.ReqContext) (*dtos.IndexViewData, error) {
 		data := &dtos.IndexViewData{
 			User:     &dtos.CurrentUser{},
@@ -36,19 +40,13 @@ func mockSetIndexViewData() {
 	}
 }
 
-func resetSetIndexViewData() {
-	setIndexViewData = (*HTTPServer).setIndexViewData
-}
-
-func mockViewIndex() {
+func fakeViewIndex(t *testing.T) {
+	origGetViewIndex := getViewIndex
+	t.Cleanup(func() {
+		getViewIndex = origGetViewIndex
+	})
 	getViewIndex = func() string {
 		return "index-template"
-	}
-}
-
-func resetViewIndex() {
-	getViewIndex = func() string {
-		return ViewIndex
 	}
 }
 
@@ -87,11 +85,9 @@ type redirectCase struct {
 }
 
 func TestLoginErrorCookieAPIEndpoint(t *testing.T) {
-	mockSetIndexViewData()
-	defer resetSetIndexViewData()
+	fakeSetIndexViewData(t)
 
-	mockViewIndex()
-	defer resetViewIndex()
+	fakeViewIndex(t)
 
 	sc := setupScenarioContext(t, "/login")
 	cfg := setting.NewCfg()
@@ -104,8 +100,6 @@ func TestLoginErrorCookieAPIEndpoint(t *testing.T) {
 		hs.LoginView(c)
 	})
 
-	// TODO: Remove
-	setting.LoginCookieName = "grafana_session"
 	cfg.LoginCookieName = "grafana_session"
 	setting.SecretKey = "login_testing"
 
@@ -145,11 +139,9 @@ func TestLoginErrorCookieAPIEndpoint(t *testing.T) {
 }
 
 func TestLoginViewRedirect(t *testing.T) {
-	mockSetIndexViewData()
-	defer resetSetIndexViewData()
+	fakeSetIndexViewData(t)
 
-	mockViewIndex()
-	defer resetViewIndex()
+	fakeViewIndex(t)
 	sc := setupScenarioContext(t, "/login")
 	hs := &HTTPServer{
 		Cfg:     setting.NewCfg(),
@@ -321,11 +313,9 @@ func TestLoginViewRedirect(t *testing.T) {
 }
 
 func TestLoginPostRedirect(t *testing.T) {
-	mockSetIndexViewData()
-	defer resetSetIndexViewData()
+	fakeSetIndexViewData(t)
 
-	mockViewIndex()
-	t.Cleanup(resetViewIndex)
+	fakeViewIndex(t)
 	sc := setupScenarioContext(t, "/login")
 	hs := &HTTPServer{
 		log:              &FakeLogger{},
@@ -481,8 +471,7 @@ func TestLoginPostRedirect(t *testing.T) {
 }
 
 func TestLoginOAuthRedirect(t *testing.T) {
-	mockSetIndexViewData()
-	defer resetSetIndexViewData()
+	fakeSetIndexViewData(t)
 
 	sc := setupScenarioContext(t, "/login")
 	hs := &HTTPServer{
@@ -514,11 +503,9 @@ func TestLoginOAuthRedirect(t *testing.T) {
 }
 
 func TestLoginInternal(t *testing.T) {
-	mockSetIndexViewData()
-	defer resetSetIndexViewData()
+	fakeSetIndexViewData(t)
 
-	mockViewIndex()
-	defer resetViewIndex()
+	fakeViewIndex(t)
 	sc := setupScenarioContext(t, "/login")
 	hs := &HTTPServer{
 		Cfg:     setting.NewCfg(),
@@ -573,12 +560,12 @@ func TestAuthProxyLoginWithEnableLoginToken(t *testing.T) {
 }
 
 func setupAuthProxyLoginTest(t *testing.T, enableLoginToken bool) *scenarioContext {
-	mockSetIndexViewData()
-	defer resetSetIndexViewData()
+	fakeSetIndexViewData(t)
 
 	sc := setupScenarioContext(t, "/login")
+	sc.cfg.LoginCookieName = "grafana_session"
 	hs := &HTTPServer{
-		Cfg:              setting.NewCfg(),
+		Cfg:              sc.cfg,
 		License:          &licensing.OSSLicensingService{},
 		AuthTokenService: auth.NewFakeUserAuthTokenService(),
 		log:              log.New("hello"),
@@ -594,8 +581,8 @@ func setupAuthProxyLoginTest(t *testing.T, enableLoginToken bool) *scenarioConte
 
 	setting.OAuthService = &setting.OAuther{}
 	setting.OAuthService.OAuthInfos = make(map[string]*setting.OAuthInfo)
-	hs.Cfg.AuthProxyEnabled = true
-	hs.Cfg.AuthProxyEnableLoginToken = enableLoginToken
+	sc.cfg.AuthProxyEnabled = true
+	sc.cfg.AuthProxyEnableLoginToken = enableLoginToken
 
 	sc.m.Get(sc.url, sc.defaultHandler)
 	sc.fakeReqNoAssertions("GET", sc.url).exec()
