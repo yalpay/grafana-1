@@ -22,7 +22,7 @@ func TestDontRotateTokensOnCancelledRequests(t *testing.T) {
 	ctxHdlr := getContextHandler(t)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	reqContext, _, err := initTokenRotationScenario(ctx, t)
+	reqContext, _, err := initTokenRotationScenario(ctx, t, ctxHdlr)
 	require.NoError(t, err)
 
 	tryRotateCallCount := 0
@@ -46,7 +46,7 @@ func TestDontRotateTokensOnCancelledRequests(t *testing.T) {
 func TestTokenRotationAtEndOfRequest(t *testing.T) {
 	ctxHdlr := getContextHandler(t)
 
-	reqContext, rr, err := initTokenRotationScenario(context.Background(), t)
+	reqContext, rr, err := initTokenRotationScenario(context.Background(), t, ctxHdlr)
 	require.NoError(t, err)
 
 	uts := &auth.FakeUserAuthTokenService{
@@ -76,16 +76,17 @@ func TestTokenRotationAtEndOfRequest(t *testing.T) {
 	assert.True(t, foundLoginCookie, "Could not find cookie")
 }
 
-func initTokenRotationScenario(ctx context.Context, t *testing.T) (*models.ReqContext, *httptest.ResponseRecorder, error) {
+func initTokenRotationScenario(ctx context.Context, t *testing.T, ctxHdlr *ContextHandler) (
+	*models.ReqContext, *httptest.ResponseRecorder, error) {
 	t.Helper()
 
-	origLoginCookieName := setting.LoginCookieName
 	origLoginMaxLifetime := setting.LoginMaxLifetime
 	t.Cleanup(func() {
-		setting.LoginCookieName = origLoginCookieName
 		setting.LoginMaxLifetime = origLoginMaxLifetime
 	})
+	// TODO: Remove
 	setting.LoginCookieName = "login_token"
+	ctxHdlr.Cfg.LoginCookieName = "login_token"
 	var err error
 	setting.LoginMaxLifetime, err = gtime.ParseDuration("7d")
 	if err != nil {

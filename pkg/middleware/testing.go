@@ -78,11 +78,6 @@ func (sc *scenarioContext) fakeReqWithParams(method, url string, queryParams map
 	return sc
 }
 
-func (sc *scenarioContext) handler(fn handlerFunc) *scenarioContext {
-	sc.handlerFunc = fn
-	return sc
-}
-
 func (sc *scenarioContext) exec() {
 	sc.t.Helper()
 
