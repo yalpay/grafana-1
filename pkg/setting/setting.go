@@ -40,10 +40,6 @@ const (
 	Test             = "test"
 )
 
-var (
-	ErrTemplateName = "error"
-)
-
 // This constant corresponds to the default value for ldap_sync_ttl in .ini files
 // it is used for comparison and has to be kept in sync
 const (
@@ -723,7 +719,7 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	cfg.IsEnterprise = IsEnterprise
 	cfg.Packaging = Packaging
 
-	cfg.ErrTemplateName = ErrTemplateName
+	cfg.ErrTemplateName = "error"
 
 	ApplicationName = "Grafana"
 

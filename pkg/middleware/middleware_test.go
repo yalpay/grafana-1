@@ -31,7 +31,6 @@ import (
 	"github.com/grafana/grafana/pkg/util"
 )
 
-const errorTemplate = "error-template"
 
 func fakeGetTime() func() time.Time {
 	var timeSeed int64
@@ -43,12 +42,6 @@ func fakeGetTime() func() time.Time {
 }
 
 func TestMiddleWareSecurityHeaders(t *testing.T) {
-	origErrTemplateName := setting.ErrTemplateName
-	t.Cleanup(func() {
-		setting.ErrTemplateName = origErrTemplateName
-	})
-	setting.ErrTemplateName = errorTemplate
-
 	middlewareScenario(t, "middleware should get correct x-xss-protection header", func(t *testing.T, sc *scenarioContext) {
 		sc.fakeReq("GET", "/api/").exec()
 		assert.Equal(t, "1; mode=block", sc.resp.Header().Get("X-XSS-Protection"))
@@ -81,11 +74,6 @@ func TestMiddleWareSecurityHeaders(t *testing.T) {
 
 func TestMiddlewareContext(t *testing.T) {
 	const noCache = "no-cache"
-	origErrTemplateName := setting.ErrTemplateName
-	t.Cleanup(func() {
-		setting.ErrTemplateName = origErrTemplateName
-	})
-	setting.ErrTemplateName = errorTemplate
 
 	middlewareScenario(t, "middleware should add context to injector", func(t *testing.T, sc *scenarioContext) {
 		sc.fakeReq("GET", "/").exec()
@@ -561,6 +549,8 @@ func middlewareScenario(t *testing.T, desc string, fn scenarioFunc, cbs ...func(
 		cfg := setting.NewCfg()
 		cfg.LoginCookieName = "grafana_session"
 		cfg.LoginMaxLifetime = loginMaxLifetime
+		// Required when rendering errors
+		cfg.ErrTemplateName = "error-template"
 		for _, cb := range cbs {
 			cb(cfg)
 		}
