@@ -69,8 +69,6 @@ func TestMiddlewareDashboardRedirect(t *testing.T) {
 }
 
 func TestMiddlewareDashboardRedirect_legacyEditPanel(t *testing.T) {
-	bus.ClearBusHandlers()
-
 	middlewareScenario(t, "GET dashboard by legacy edit URL", func(t *testing.T, sc *scenarioContext) {
 		sc.handlerFunc = RedirectFromLegacyPanelEditURL(sc.cfg)
 		sc.m.Get("/d/:uid/:slug", sc.defaultHandler)
