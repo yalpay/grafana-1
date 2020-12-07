@@ -262,7 +262,7 @@ func TestMiddlewareContext(t *testing.T) {
 			return true, nil
 		}
 
-		maxAge := int(setting.LoginMaxLifetime.Seconds())
+		maxAge := int(sc.cfg.LoginMaxLifetime.Seconds())
 
 		sameSiteModes := []http.SameSite{
 			http.SameSiteNoneMode,
@@ -278,11 +278,11 @@ func TestMiddlewareContext(t *testing.T) {
 				setting.CookieSameSiteMode = sameSiteMode
 
 				expectedCookiePath := "/"
-				if len(setting.AppSubUrl) > 0 {
-					expectedCookiePath = setting.AppSubUrl
+				if len(sc.cfg.AppSubURL) > 0 {
+					expectedCookiePath = sc.cfg.AppSubURL
 				}
 				expectedCookie := &http.Cookie{
-					Name:     setting.LoginCookieName,
+					Name:     sc.cfg.LoginCookieName,
 					Value:    "rotated",
 					Path:     expectedCookiePath,
 					HttpOnly: true,
@@ -312,11 +312,11 @@ func TestMiddlewareContext(t *testing.T) {
 			setting.CookieSameSiteMode = http.SameSiteLaxMode
 
 			expectedCookiePath := "/"
-			if len(setting.AppSubUrl) > 0 {
-				expectedCookiePath = setting.AppSubUrl
+			if len(sc.cfg.AppSubURL) > 0 {
+				expectedCookiePath = sc.cfg.AppSubURL
 			}
 			expectedCookie := &http.Cookie{
-				Name:     setting.LoginCookieName,
+				Name:     sc.cfg.LoginCookieName,
 				Value:    "rotated",
 				Path:     expectedCookiePath,
 				HttpOnly: true,
