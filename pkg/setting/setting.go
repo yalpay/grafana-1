@@ -122,7 +122,6 @@ var (
 	ViewersCanEdit          bool
 
 	// HTTP auth
-	LoginMaxLifetime time.Duration
 	SigV4AuthEnabled bool
 
 	AnonymousEnabled bool
@@ -1043,7 +1042,6 @@ func readAuthSettings(iniFile *ini.File, cfg *Cfg) (err error) {
 	if err != nil {
 		return err
 	}
-	LoginMaxLifetime = cfg.LoginMaxLifetime
 
 	cfg.ApiKeyMaxSecondsToLive = auth.Key("api_key_max_seconds_to_live").MustInt64(-1)
 
