@@ -84,8 +84,6 @@ func initTokenRotationScenario(ctx context.Context, t *testing.T, ctxHdlr *Conte
 	t.Cleanup(func() {
 		setting.LoginMaxLifetime = origLoginMaxLifetime
 	})
-	// TODO: Remove
-	setting.LoginCookieName = "login_token"
 	ctxHdlr.Cfg.LoginCookieName = "login_token"
 	var err error
 	setting.LoginMaxLifetime, err = gtime.ParseDuration("7d")

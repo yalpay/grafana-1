@@ -126,8 +126,6 @@ var (
 	ViewersCanEdit          bool
 
 	// HTTP auth
-	// TODO: Remove
-	LoginCookieName  string
 	LoginMaxLifetime time.Duration
 	SigV4AuthEnabled bool
 
@@ -1024,7 +1022,6 @@ func readAuthSettings(iniFile *ini.File, cfg *Cfg) (err error) {
 	auth := iniFile.Section("auth")
 
 	cfg.LoginCookieName = valueAsString(auth, "login_cookie_name", "grafana_session")
-	LoginCookieName = cfg.LoginCookieName
 	maxInactiveDaysVal := auth.Key("login_maximum_inactive_lifetime_days").MustString("")
 	if maxInactiveDaysVal != "" {
 		maxInactiveDaysVal = fmt.Sprintf("%sd", maxInactiveDaysVal)
