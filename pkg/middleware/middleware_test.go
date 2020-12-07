@@ -31,8 +31,6 @@ import (
 	"github.com/grafana/grafana/pkg/util"
 )
 
-const errorTemplate = "error-template"
-
 func fakeGetTime(t *testing.T) {
 	t.Helper()
 
@@ -50,12 +48,6 @@ func fakeGetTime(t *testing.T) {
 }
 
 func TestMiddleWareSecurityHeaders(t *testing.T) {
-	origErrTemplateName := setting.ErrTemplateName
-	t.Cleanup(func() {
-		setting.ErrTemplateName = origErrTemplateName
-	})
-	setting.ErrTemplateName = errorTemplate
-
 	middlewareScenario(t, "middleware should get correct x-xss-protection header", func(t *testing.T, sc *scenarioContext) {
 		sc.fakeReq("GET", "/api/").exec()
 		assert.Equal(t, "1; mode=block", sc.resp.Header().Get("X-XSS-Protection"))
@@ -262,7 +254,7 @@ func TestMiddlewareContext(t *testing.T) {
 			return true, nil
 		}
 
-		maxAge := int(setting.LoginMaxLifetime.Seconds())
+		maxAge := int(sc.cfg.LoginMaxLifetime.Seconds())
 
 		sameSiteModes := []http.SameSite{
 			http.SameSiteNoneMode,
@@ -278,11 +270,11 @@ func TestMiddlewareContext(t *testing.T) {
 				setting.CookieSameSiteMode = sameSiteMode
 
 				expectedCookiePath := "/"
-				if len(setting.AppSubUrl) > 0 {
-					expectedCookiePath = setting.AppSubUrl
+				if len(sc.cfg.AppSubURL) > 0 {
+					expectedCookiePath = sc.cfg.AppSubURL
 				}
 				expectedCookie := &http.Cookie{
-					Name:     setting.LoginCookieName,
+					Name:     sc.cfg.LoginCookieName,
 					Value:    "rotated",
 					Path:     expectedCookiePath,
 					HttpOnly: true,
@@ -312,11 +304,11 @@ func TestMiddlewareContext(t *testing.T) {
 			setting.CookieSameSiteMode = http.SameSiteLaxMode
 
 			expectedCookiePath := "/"
-			if len(setting.AppSubUrl) > 0 {
-				expectedCookiePath = setting.AppSubUrl
+			if len(sc.cfg.AppSubURL) > 0 {
+				expectedCookiePath = sc.cfg.AppSubURL
 			}
 			expectedCookie := &http.Cookie{
-				Name:     setting.LoginCookieName,
+				Name:     sc.cfg.LoginCookieName,
 				Value:    "rotated",
 				Path:     expectedCookiePath,
 				HttpOnly: true,
@@ -563,6 +555,8 @@ func middlewareScenario(t *testing.T, desc string, fn scenarioFunc, cbs ...func(
 		cfg := setting.NewCfg()
 		cfg.LoginCookieName = "grafana_session"
 		cfg.LoginMaxLifetime = loginMaxLifetime
+		// Required when rendering errors
+		cfg.ErrTemplateName = "error-template"
 		for _, cb := range cbs {
 			cb(cfg)
 		}
