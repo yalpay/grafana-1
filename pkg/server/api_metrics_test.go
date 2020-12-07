@@ -278,6 +278,8 @@ func startGrafana(t *testing.T, grafDir, cfgPath string, sqlStore *sqlstore.SQLS
 		InitPriority: sqlstore.InitPriority,
 	})
 
+	t.Logf("Registered SQL store %p", sqlStore)
+
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	server, err := New(Config{
@@ -314,8 +316,12 @@ func setUpDatabase(t *testing.T, grafDir string) *sqlstore.SQLStore {
 	t.Helper()
 
 	sqlStore := sqlstore.InitTestDB(t)
+	t.Logf("Created SQLStore: %+v", sqlStore)
+	org, err := sqlStore.GetOrgByName("Main Org.")
+	require.NoError(t, err)
+	require.NotNil(t, org)
 
-	err := sqlStore.WithDbSession(context.Background(), func(sess *sqlstore.DBSession) error {
+	err = sqlStore.WithDbSession(context.Background(), func(sess *sqlstore.DBSession) error {
 		_, err := sess.Insert(&models.DataSource{
 			Id:      1,
 			OrgId:   1,

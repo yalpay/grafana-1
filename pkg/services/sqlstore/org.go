@@ -72,6 +72,21 @@ func GetOrgByName(query *models.GetOrgByNameQuery) error {
 	return nil
 }
 
+// GetOrgByName gets an organization by name.
+func (ss *SQLStore) GetOrgByName(name string) (*models.Org, error) {
+	var org models.Org
+	exists, err := ss.engine.Where("name=?", name).Get(&org)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		fmt.Printf("Couldn't find org with name %q, engine: %p\n", name, ss.engine)
+		return nil, models.ErrOrgNotFound
+	}
+
+	return &org, nil
+}
+
 func isOrgNameTaken(name string, existingId int64, sess *DBSession) (bool, error) {
 	// check if org name is taken
 	var org models.Org
@@ -227,6 +242,52 @@ func verifyExistingOrg(sess *DBSession, orgId int64) error {
 		return models.ErrOrgNotFound
 	}
 	return nil
+}
+
+func (ss *SQLStore) getOrCreateOrg(sess *DBSession, orgName string) (int64, error) {
+	var org models.Org
+	if ss.Cfg.AutoAssignOrg {
+		has, err := sess.Where("id=?", ss.Cfg.AutoAssignOrgId).Get(&org)
+		if err != nil {
+			return 0, err
+		}
+		if has {
+			return org.Id, nil
+		}
+
+		if ss.Cfg.AutoAssignOrgId != 1 {
+			ss.log.Error("Could not create user: organization ID does not exist", "orgID",
+				ss.Cfg.AutoAssignOrgId)
+			return 0, fmt.Errorf("could not create user: organization ID %d does not exist",
+				ss.Cfg.AutoAssignOrgId)
+		}
+
+		org.Name = mainOrgName
+		org.Id = int64(ss.Cfg.AutoAssignOrgId)
+	} else {
+		org.Name = orgName
+	}
+
+	org.Created = time.Now()
+	org.Updated = time.Now()
+
+	if org.Id != 0 {
+		if _, err := sess.InsertId(&org); err != nil {
+			return 0, err
+		}
+	} else {
+		if _, err := sess.InsertOne(&org); err != nil {
+			return 0, err
+		}
+	}
+
+	sess.publishAfterCommit(&events.OrgCreated{
+		Timestamp: org.Created,
+		Id:        org.Id,
+		Name:      org.Name,
+	})
+
+	return org.Id, nil
 }
 
 func getOrCreateOrg(sess *DBSession, orgName string) (int64, error) {

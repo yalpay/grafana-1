@@ -145,25 +145,29 @@ func (ss *SQLStore) ensureMainOrgAndAdminUser() error {
 		// ensure admin user
 		if !ss.Cfg.DisableInitAdminCreation {
 			ss.log.Debug("Creating default admin user")
-			cmd := models.CreateUserCommand{
+			fmt.Printf("Creating default admin user\n")
+			if _, err := ss.createUser(ctx, userCreationArgs{
 				Login:    ss.Cfg.AdminUser,
 				Email:    ss.Cfg.AdminUser + "@localhost",
 				Password: ss.Cfg.AdminPassword,
 				IsAdmin:  true,
-			}
-			if err := bus.DispatchCtx(ctx, &cmd); err != nil {
+			}, false); err != nil {
 				return fmt.Errorf("failed to create admin user: %s", err)
 			}
 
 			ss.log.Info("Created default admin", "user", ss.Cfg.AdminUser)
-			return nil
+			//return nil
 		}
 
-		// ensure default org even if default admin user is disabled
-		if err := inTransactionCtx(ctx, func(sess *DBSession) error {
-			_, err := getOrCreateOrg(sess, mainOrgName)
+		if err := inTransactionWithRetryCtx(ctx, ss.engine, func(sess *DBSession) error {
+			fmt.Printf("Creating default org %q\n", mainOrgName)
+			ss.log.Debug("Creating default org", "name", mainOrgName)
+			_, err := ss.getOrCreateOrg(sess, mainOrgName)
+			if err == nil {
+				fmt.Printf("Created default org %q\n", mainOrgName)
+			}
 			return err
-		}); err != nil {
+		}, 0); err != nil {
 			return fmt.Errorf("failed to create default organization: %w", err)
 		}
 
@@ -363,6 +367,7 @@ type ITestDB interface {
 	Helper()
 	Fatalf(format string, args ...interface{})
 	Logf(format string, args ...interface{})
+	Log(args ...interface{})
 }
 
 var testSQLStore *SQLStore
@@ -429,6 +434,7 @@ func InitTestDB(t ITestDB) *SQLStore {
 		if err := testSQLStore.Init(); err != nil {
 			t.Fatalf("Failed to init test database: %v", err)
 		}
+		t.Log("Successfully initialized test database")
 
 		testSQLStore.engine.DatabaseTZ = time.UTC
 		testSQLStore.engine.TZLocation = time.UTC
