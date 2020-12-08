@@ -316,15 +316,16 @@ func setUpDatabase(t *testing.T, grafDir string) *sqlstore.SQLStore {
 	t.Helper()
 
 	sqlStore := sqlstore.InitTestDB(t)
-	t.Logf("Created SQLStore: %+v", sqlStore)
-	org, err := sqlStore.GetOrgByName("Main Org.")
+	// We need the main org, since it's used for anonymous access
+	org, err := sqlStore.GetOrgByName(sqlstore.MainOrgName)
 	require.NoError(t, err)
 	require.NotNil(t, org)
 
 	err = sqlStore.WithDbSession(context.Background(), func(sess *sqlstore.DBSession) error {
 		_, err := sess.Insert(&models.DataSource{
-			Id:      1,
-			OrgId:   1,
+			Id: 1,
+			// This will be the ID of the main org
+			OrgId:   2,
 			Name:    "Test",
 			Type:    "cloudwatch",
 			Created: time.Now(),
@@ -332,6 +333,9 @@ func setUpDatabase(t *testing.T, grafDir string) *sqlstore.SQLStore {
 		})
 		return err
 	})
+	require.NoError(t, err)
+	// Make sure changes are synced with other goroutines
+	err = sqlStore.Sync()
 	require.NoError(t, err)
 
 	return sqlStore

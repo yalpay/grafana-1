@@ -115,11 +115,16 @@ func (ss *SQLStore) Init() error {
 		return err
 	}
 	// Make sure the changes are synced, so they get shared with eventual other DB connections
-	if err := ss.engine.Sync2(); err != nil {
+	if err := ss.Sync(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Sync syncs changes to the database.
+func (ss *SQLStore) Sync() error {
+	return ss.engine.Sync2()
 }
 
 // Reset resets database state.
@@ -172,8 +177,8 @@ func (ss *SQLStore) ensureMainOrgAndAdminUser() error {
 		}
 
 		if err := inTransactionWithRetryCtx(ctx, ss.engine, func(sess *DBSession) error {
-			ss.log.Debug("Creating default org", "name", mainOrgName)
-			_, err := ss.getOrCreateOrg(sess, mainOrgName)
+			ss.log.Debug("Creating default org", "name", MainOrgName)
+			_, err := ss.getOrCreateOrg(sess, MainOrgName)
 			return err
 		}, 0); err != nil {
 			return fmt.Errorf("failed to create default organization: %w", err)

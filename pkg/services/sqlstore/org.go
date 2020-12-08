@@ -10,7 +10,8 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 )
 
-const mainOrgName = "Main Org."
+// MainOrgName is the name of the main organization.
+const MainOrgName = "Main Org."
 
 func init() {
 	bus.AddHandler("sql", GetOrgById)
@@ -261,7 +262,7 @@ func (ss *SQLStore) getOrCreateOrg(sess *DBSession, orgName string) (int64, erro
 				ss.Cfg.AutoAssignOrgId)
 		}
 
-		org.Name = mainOrgName
+		org.Name = MainOrgName
 		org.Id = int64(ss.Cfg.AutoAssignOrgId)
 	} else {
 		org.Name = orgName
@@ -307,7 +308,7 @@ func getOrCreateOrg(sess *DBSession, orgName string) (int64, error) {
 				setting.AutoAssignOrgId)
 		}
 
-		org.Name = mainOrgName
+		org.Name = MainOrgName
 		org.Id = int64(setting.AutoAssignOrgId)
 	} else {
 		org.Name = orgName
