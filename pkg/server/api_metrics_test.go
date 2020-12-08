@@ -171,6 +171,7 @@ func makeCWRequest(t *testing.T, req dtos.MetricRequest, addr string) tsdb.Respo
 	require.NoError(t, err)
 	u := fmt.Sprintf("http://%s/api/ds/query", addr)
 	t.Logf("Making POST request to %s", u)
+	// nolint:gosec
 	resp, err := http.Post(u, "application/json", &buf)
 	require.NoError(t, err)
 	require.NotNil(t, resp)

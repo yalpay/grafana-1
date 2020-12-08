@@ -174,7 +174,7 @@ func (ss *SQLStore) ensureMainOrgAndAdminUser() error {
 			ss.log.Info("Created default admin", "user", ss.Cfg.AdminUser)
 			// Why should we return and not create the default org in this case?
 			// Returning here breaks tests using anonymous access
-			//return nil
+			// return nil
 		}
 
 		if err := inTransactionWithRetryCtx(ctx, ss.engine, func(sess *DBSession) error {
