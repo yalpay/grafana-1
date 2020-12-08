@@ -84,7 +84,6 @@ func (ss *SQLStore) getOrgIDForNewUser(sess *DBSession, args userCreationArgs) (
 		orgName = util.StringsFallback2(args.Email, args.Login)
 	}
 
-	fmt.Printf("Creating org with name %q\n", orgName)
 	return ss.getOrCreateOrg(sess, orgName)
 }
 

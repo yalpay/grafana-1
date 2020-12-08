@@ -2,7 +2,6 @@ package migrator
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -127,8 +126,7 @@ func (mg *Migrator) exec(m Migration, sess *xorm.Session) error {
 		sql, args := condition.SQL(mg.Dialect)
 
 		if sql != "" {
-			mg.Logger.Debug("Executing migration condition SQL", "id", m.Id(), "sql", sql, "args", args,
-				"engine", fmt.Sprintf("%p", mg.x))
+			mg.Logger.Debug("Executing migration condition SQL", "id", m.Id(), "sql", sql, "args", args)
 			results, err := sess.SQL(sql, args...).Query()
 			if err != nil {
 				mg.Logger.Error("Executing migration condition failed", "id", m.Id(), "error", err)

@@ -73,11 +73,7 @@ func New(cfg Config) (*Server, error) {
 		version:     cfg.Version,
 		commit:      cfg.Commit,
 		buildBranch: cfg.BuildBranch,
-	}
-	if cfg.Listener != nil {
-		if err := s.init(&cfg); err != nil {
-			return nil, err
-		}
+		listener:    cfg.Listener,
 	}
 
 	return s, nil
@@ -94,6 +90,7 @@ type Server struct {
 	shutdownInProgress bool
 	isInitialized      bool
 	mtx                sync.Mutex
+	listener           net.Listener
 
 	configFile  string
 	homePath    string
@@ -106,7 +103,7 @@ type Server struct {
 }
 
 // init initializes the server and its services.
-func (s *Server) init(cfg *Config) error {
+func (s *Server) init() error {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
@@ -129,15 +126,13 @@ func (s *Server) init(cfg *Config) error {
 		return err
 	}
 
-	if cfg != nil {
+	if s.listener != nil {
 		for _, service := range services {
 			if httpS, ok := service.Instance.(*api.HTTPServer); ok {
 				// Configure the api.HTTPServer if necessary
 				// Hopefully we can find a better solution, maybe with a more advanced DI framework, f.ex. Dig?
-				if cfg.Listener != nil {
-					s.log.Debug("Using provided listener for HTTP server")
-					httpS.Listener = cfg.Listener
-				}
+				s.log.Debug("Using provided listener for HTTP server")
+				httpS.Listener = s.listener
 			}
 		}
 	}
@@ -148,7 +143,7 @@ func (s *Server) init(cfg *Config) error {
 // Run initializes and starts services. This will block until all services have
 // exited. To initiate shutdown, call the Shutdown method in another goroutine.
 func (s *Server) Run() (err error) {
-	if err = s.init(nil); err != nil {
+	if err = s.init(); err != nil {
 		return
 	}
 

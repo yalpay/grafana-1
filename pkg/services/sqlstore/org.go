@@ -80,7 +80,6 @@ func (ss *SQLStore) GetOrgByName(name string) (*models.Org, error) {
 		return nil, err
 	}
 	if !exists {
-		fmt.Printf("Couldn't find org with name %q, engine: %p\n", name, ss.engine)
 		return nil, models.ErrOrgNotFound
 	}
 
