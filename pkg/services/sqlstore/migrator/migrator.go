@@ -114,7 +114,8 @@ func (mg *Migrator) Start() error {
 		}
 	}
 
-	return nil
+	// Make sure migrations are synced
+	return mg.x.Sync2()
 }
 
 func (mg *Migrator) exec(m Migration, sess *xorm.Session) error {

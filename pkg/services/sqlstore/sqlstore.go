@@ -98,7 +98,7 @@ func (ss *SQLStore) Init() error {
 	}
 
 	if err := migrator.Start(); err != nil {
-		return errutil.Wrap("migration failed", err)
+		return err
 	}
 
 	// Init repo instances
@@ -276,6 +276,11 @@ func (ss *SQLStore) buildConnectionString() (string, error) {
 
 // initEngine initializes ss.engine.
 func (ss *SQLStore) initEngine() error {
+	if ss.engine != nil {
+		sqlog.Debug("Already connected to database")
+		return nil
+	}
+
 	connectionString, err := ss.buildConnectionString()
 	if err != nil {
 		return err
