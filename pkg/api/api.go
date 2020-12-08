@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/go-macaron/binding"
 	"github.com/grafana/grafana/pkg/api/avatar"
 	"github.com/grafana/grafana/pkg/api/dtos"
@@ -25,7 +23,6 @@ func (hs *HTTPServer) registerRoutes() {
 	quota := middleware.Quota(hs.QuotaService)
 	bind := binding.Bind
 
-	fmt.Printf("\nRegistering routes with %p\n\n", hs.RouteRegister)
 	r := hs.RouteRegister
 
 	// not logged in views

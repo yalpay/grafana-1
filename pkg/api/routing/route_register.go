@@ -1,7 +1,6 @@
 package routing
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -80,7 +79,6 @@ func (rr *routeRegister) Reset() {
 		return
 	}
 
-	fmt.Printf("Resetting %p\n", rr)
 	rr.routes = nil
 	rr.groups = nil
 	rr.subfixHandlers = nil
@@ -144,7 +142,6 @@ func (rr *routeRegister) route(pattern, method string, handlers ...macaron.Handl
 
 	for _, r := range rr.routes {
 		if r.pattern == fullPattern && r.method == method {
-			fmt.Printf("Duplicate route in %p\n", rr)
 			panic("cannot add duplicate route")
 		}
 	}

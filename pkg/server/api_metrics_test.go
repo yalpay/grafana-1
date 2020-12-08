@@ -288,13 +288,10 @@ func startGrafana(t *testing.T, grafDir, cfgPath string, sqlStore *sqlstore.SQLS
 	})
 	require.NoError(t, err)
 
-	// Have to reset the route register between tests, since it doesn't re-created
-	if server.HTTPServer != nil {
-		fmt.Printf("Resetting it\n")
+	t.Cleanup(func() {
+		// Have to reset the route register between tests, since it doesn't get re-created
 		server.HTTPServer.RouteRegister.Reset()
-	} else {
-		fmt.Printf("No route register to reset\n")
-	}
+	})
 
 	go func() {
 		// When the server runs, it will also build and initialize the service graph
