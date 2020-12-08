@@ -4,22 +4,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/registry"
 	"github.com/grafana/grafana/pkg/services/sqlstore"
 	"github.com/grafana/grafana/pkg/setting"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateLibraryPanel(t *testing.T) {
 	t.Run("should fail if library panel already exists", func(t *testing.T) {
-		lps, context := setupTestEnv(t, models.ROLE_EDITOR)
+		lps, c := setupTestEnv(t, models.ROLE_EDITOR)
 		command := AddLibraryPanelCommand{
-			OrgID:        1,
-			FolderID:     1,
-			SignedInUser: context.SignedInUser,
-			Title:        "Text - Library Panel",
+			FolderID: 1,
+			Title:    "Text - Library Panel",
 			Model: []byte(`
 	{
       "datasource": "${DS_GDEV-TESTDATA}",
@@ -30,13 +27,11 @@ func TestCreateLibraryPanel(t *testing.T) {
 `),
 		}
 
-		response, err := lps.Create(&context, command)
-		require.NoError(t, err)
-		require.NotNil(t, response)
+		response := lps.createHandler(c, command)
+		require.Equal(t, 200, response.Status())
 
-		response, err = lps.Create(&context, command)
-		require.EqualError(t, err, errLibraryPanelAlreadyAdded.Error())
-		require.Nil(t, response)
+		response = lps.createHandler(c, command)
+		require.Equal(t, 500, response.Status())
 
 		t.Cleanup(registry.ClearOverrides)
 	})
@@ -63,7 +58,7 @@ func setupMigrations(cfg *setting.Cfg) LibraryPanelService {
 	return lps
 }
 
-func setupTestEnv(t *testing.T, orgRole models.RoleType) (LibraryPanelService, models.ReqContext) {
+func setupTestEnv(t *testing.T, orgRole models.RoleType) (LibraryPanelService, *models.ReqContext) {
 	cfg := setting.NewCfg()
 	cfg.FeatureToggles = map[string]bool{"panelLibrary": true}
 
@@ -89,7 +84,7 @@ func setupTestEnv(t *testing.T, orgRole models.RoleType) (LibraryPanelService, m
 		Teams:          nil,
 	}
 
-	context := models.ReqContext{
+	c := models.ReqContext{
 		Context:        nil,
 		SignedInUser:   &user,
 		UserToken:      nil,
@@ -100,5 +95,5 @@ func setupTestEnv(t *testing.T, orgRole models.RoleType) (LibraryPanelService, m
 		Logger:         nil,
 	}
 
-	return service, context
+	return service, &c
 }
