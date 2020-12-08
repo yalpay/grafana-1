@@ -76,6 +76,10 @@ func New(cfg Config) (*Server, error) {
 		listener:    cfg.Listener,
 	}
 
+	if err := s.init(); err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
 
@@ -255,11 +259,13 @@ func (s *Server) writePIDFile() {
 
 // buildServiceGraph builds a graph of services and their dependencies.
 func (s *Server) buildServiceGraph(services []*registry.Descriptor) error {
+	routeRegister := routing.NewRouteRegister(middleware.RequestTracing, middleware.RequestMetrics(s.cfg))
+	fmt.Printf("\nBuilding service graph with route register %p\n\n", routeRegister)
 	// Specify service dependencies.
 	objs := []interface{}{
 		bus.GetBus(),
 		s.cfg,
-		routing.NewRouteRegister(middleware.RequestTracing, middleware.RequestMetrics(s.cfg)),
+		routeRegister,
 		localcache.New(5*time.Minute, 10*time.Minute),
 		s,
 	}

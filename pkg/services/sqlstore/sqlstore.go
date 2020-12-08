@@ -459,6 +459,8 @@ func InitTestDB(t ITestDB) *SQLStore {
 		return testSQLStore
 	}
 
+	fmt.Printf("Truncating DB tables\n")
+	t.Log("Truncating DB tables")
 	if err := dialect.TruncateDBTables(); err != nil {
 		t.Fatalf("Failed to truncate test db: %s", err)
 	}
