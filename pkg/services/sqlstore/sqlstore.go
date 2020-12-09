@@ -395,14 +395,24 @@ type ITestDB interface {
 
 var testSQLStore *SQLStore
 
+// InitTestDBOpt contains options for InitTestDB.
+type InitTestDBOpt struct {
+	// EnsureDefaultOrgAndUser flags whether to ensure that default org and user exist.
+	EnsureDefaultOrgAndUser bool
+}
+
 // InitTestDB initializes the test DB.
-func InitTestDB(t ITestDB) *SQLStore {
+func InitTestDB(t ITestDB, opts ...InitTestDBOpt) *SQLStore {
 	t.Helper()
 	if testSQLStore == nil {
 		testSQLStore = &SQLStore{}
 		testSQLStore.Bus = bus.New()
 		testSQLStore.CacheService = localcache.New(5*time.Minute, 10*time.Minute)
-		testSQLStore.skipEnsureDefaultOrgAndUser = false
+		testSQLStore.skipEnsureDefaultOrgAndUser = true
+
+		for _, opt := range opts {
+			testSQLStore.skipEnsureDefaultOrgAndUser = !opt.EnsureDefaultOrgAndUser
+		}
 
 		dbType := migrator.SQLite
 

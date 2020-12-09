@@ -322,7 +322,9 @@ func startGrafana(t *testing.T, grafDir, cfgPath string, sqlStore *sqlstore.SQLS
 func setUpDatabase(t *testing.T, grafDir string) *sqlstore.SQLStore {
 	t.Helper()
 
-	sqlStore := sqlstore.InitTestDB(t)
+	sqlStore := sqlstore.InitTestDB(t, sqlstore.InitTestDBOpt{
+		EnsureDefaultOrgAndUser: true,
+	})
 	// We need the main org, since it's used for anonymous access
 	org, err := sqlStore.GetOrgByName(sqlstore.MainOrgName)
 	require.NoError(t, err)

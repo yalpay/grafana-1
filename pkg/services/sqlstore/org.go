@@ -1,6 +1,7 @@
 package sqlstore
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/grafana/grafana/pkg/events"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/setting"
+	"xorm.io/xorm"
 )
 
 // MainOrgName is the name of the main organization.
@@ -103,18 +105,17 @@ func isOrgNameTaken(name string, existingId int64, sess *DBSession) (bool, error
 	return false, nil
 }
 
-func CreateOrg(cmd *models.CreateOrgCommand) error {
-	return inTransaction(func(sess *DBSession) error {
-		if isNameTaken, err := isOrgNameTaken(cmd.Name, 0, sess); err != nil {
+func createOrg(name string, userID int64, engine *xorm.Engine) (models.Org, error) {
+	org := models.Org{
+		Name:    name,
+		Created: time.Now(),
+		Updated: time.Now(),
+	}
+	if err := inTransactionWithRetryCtx(context.Background(), engine, func(sess *DBSession) error {
+		if isNameTaken, err := isOrgNameTaken(name, 0, sess); err != nil {
 			return err
 		} else if isNameTaken {
 			return models.ErrOrgNameTaken
-		}
-
-		org := models.Org{
-			Name:    cmd.Name,
-			Created: time.Now(),
-			Updated: time.Now(),
 		}
 
 		if _, err := sess.Insert(&org); err != nil {
@@ -123,14 +124,13 @@ func CreateOrg(cmd *models.CreateOrgCommand) error {
 
 		user := models.OrgUser{
 			OrgId:   org.Id,
-			UserId:  cmd.UserId,
+			UserId:  userID,
 			Role:    models.ROLE_ADMIN,
 			Created: time.Now(),
 			Updated: time.Now(),
 		}
 
 		_, err := sess.Insert(&user)
-		cmd.Result = org
 
 		sess.publishAfterCommit(&events.OrgCreated{
 			Timestamp: org.Created,
@@ -139,7 +139,26 @@ func CreateOrg(cmd *models.CreateOrgCommand) error {
 		})
 
 		return err
-	})
+	}, 0); err != nil {
+		return org, err
+	}
+
+	return org, nil
+}
+
+// CreateOrgWithMember creates an organization with a certain name and a certain user as member.
+func (ss *SQLStore) CreateOrgWithMember(name string, userID int64) (models.Org, error) {
+	return createOrg(name, userID, ss.engine)
+}
+
+func CreateOrg(cmd *models.CreateOrgCommand) error {
+	org, err := createOrg(cmd.Name, cmd.UserId, x)
+	if err != nil {
+		return err
+	}
+
+	cmd.Result = org
+	return nil
 }
 
 func UpdateOrg(cmd *models.UpdateOrgCommand) error {
