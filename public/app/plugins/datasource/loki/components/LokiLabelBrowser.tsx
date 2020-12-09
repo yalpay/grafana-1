@@ -1,5 +1,15 @@
 import React, { Component, createRef, ChangeEvent } from 'react';
-import { Input, Label, LoadingPlaceholder, Popover, PopoverController, stylesFactory } from '@grafana/ui';
+import {
+  Button,
+  HorizontalGroup,
+  Input,
+  Label,
+  LoadingPlaceholder,
+  Popover,
+  PopoverController,
+  stylesFactory,
+  withTheme,
+} from '@grafana/ui';
 import LokiLanguageProvider from '../language_provider';
 import { css } from 'emotion';
 import store from 'app/core/store';
@@ -7,8 +17,6 @@ import { FixedSizeList } from 'react-window';
 
 import { GrafanaTheme } from '@grafana/data';
 import { LokiLabel } from './LokiLabel';
-
-import { withTheme } from '@grafana/ui';
 
 export const LAST_USED_LABELS_KEY = 'grafana.datasources.loki.browser.labels';
 
@@ -122,10 +130,13 @@ const getStyles = stylesFactory((theme: GrafanaTheme) => {
       }
     `,
     section: css`
-      margin: ${theme.spacing.sm} 0;
+      & + & {
+        margin: ${theme.spacing.md} 0;
+      }
     `,
     selector: css`
       font-family: ${theme.typography.fontFamily.monospace};
+      margin-bottom: ${theme.spacing.sm};
     `,
     valueCell: css`
       overflow: hidden;
@@ -155,6 +166,20 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
   onClickAccept = () => {
     const selector = buildSelector(this.state.labels);
     this.props.onChange(selector);
+  };
+
+  onClickClear = () => {
+    this.setState(state => {
+      const labels: SelectableLabel[] = state.labels.map(label => ({
+        ...label,
+        value: undefined,
+        values: undefined,
+        selected: false,
+        loading: false,
+      }));
+      return { labels, searchTerm: '' };
+    });
+    store.delete(LAST_USED_LABELS_KEY);
   };
 
   onClickLabel = (name: string, value: string | undefined, event: React.MouseEvent<HTMLElement>) => {
@@ -250,10 +275,13 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
       }
     }, []);
     const selector = buildSelector(this.state.labels);
+    const empty = selector === '{}';
     return (
       <>
         <div className={styles.section}>
-          <Label>Select labels to search in:</Label>
+          <Label description="Which labels would you like to consider for your search?">
+            1. Select labels to search in
+          </Label>
           <div className={styles.list}>
             {labels.map(label => (
               <LokiLabel
@@ -267,7 +295,9 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
           </div>
         </div>
         <div className={styles.section}>
-          <Label>Find values for the selected labels</Label>
+          <Label description="Choose the label values that you would like to use for the query.">
+            2. Find values for the selected labels
+          </Label>
           <div>
             <Input onChange={this.onChangeSearch} value={searchTerm} />
           </div>
@@ -302,15 +332,16 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
           </div>
         </div>
         <div className={styles.section}>
-          <Label>Label selection</Label>
+          <Label>3. Resulting selector</Label>
           <div className={styles.selector}>{selector}</div>
-          <button
-            aria-label="Accept selector"
-            className="gf-form-label gf-form-label--btn"
-            onClick={this.onClickAccept}
-          >
-            <span className="btn-title">Accept selector</span>
-          </button>
+          <HorizontalGroup>
+            <Button aria-label="Selector submit button" disabled={empty} onClick={this.onClickAccept}>
+              Use selector
+            </Button>
+            <Button aria-label="Selector clear button" variant="secondary" onClick={this.onClickClear}>
+              Clear labels
+            </Button>
+          </HorizontalGroup>
         </div>
       </>
     );
