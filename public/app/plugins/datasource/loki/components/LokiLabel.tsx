@@ -26,7 +26,7 @@ export const LokiLabel = forwardRef<HTMLElement, Props>(
     const styles = getLabelStyles(theme, name);
 
     const onLabelClick = (event: React.MouseEvent<HTMLElement>) => {
-      if (onClick) {
+      if (onClick && !hidden) {
         onClick(name, value, event);
       }
     };
@@ -45,7 +45,7 @@ export const LokiLabel = forwardRef<HTMLElement, Props>(
           loading && styles.loading,
           hidden && styles.hidden,
           className,
-          onClick && styles.hover
+          onClick && !hidden && styles.hover
         )}
         {...rest}
       >

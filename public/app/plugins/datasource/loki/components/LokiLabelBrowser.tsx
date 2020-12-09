@@ -253,7 +253,10 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
         }));
         return { ...label, values, hidden: false };
       });
-      this.setState({ labels });
+      this.setState({ labels }, () => {
+        // Get fresh set of values
+        this.state.labels.forEach(label => label.selected && this.fetchValues(label.name));
+      });
     } else {
       // Do facetting
       this.fetchSeries(selector);
