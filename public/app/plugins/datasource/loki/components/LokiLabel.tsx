@@ -21,7 +21,7 @@ export interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
 }
 
 export const LokiLabel = forwardRef<HTMLElement, Props>(
-  ({ name, value, display, onClick, className, loading, searchTerm, active, style, ...rest }, ref) => {
+  ({ name, value, display, hidden, onClick, className, loading, searchTerm, active, style, ...rest }, ref) => {
     const theme = useTheme();
     const styles = getLabelStyles(theme, name);
 
@@ -43,6 +43,7 @@ export const LokiLabel = forwardRef<HTMLElement, Props>(
           styles.base,
           active && styles.active,
           loading && styles.loading,
+          hidden && styles.hidden,
           className,
           onClick && styles.hover
         )}
@@ -100,6 +101,11 @@ const getLabelStyles = (theme: GrafanaTheme, name: string) => {
       background: inherit;
       color: ${theme.palette.yellow};
       background-color: rgba(${theme.palette.yellow}, 0.1);
+    `,
+    hidden: css`
+      opacity: 0.6;
+      cursor: default;
+      border: 1px solid transparent;
     `,
     hover: css`
       &:hover {
