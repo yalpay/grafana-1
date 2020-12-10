@@ -372,7 +372,14 @@ func (s *PluginScanner) loadPlugin(pluginJSONFilePath string) error {
 	pluginCommon.PluginDir = filepath.Dir(pluginJSONFilePath)
 	pluginCommon.Signature = getPluginSignatureState(s.log, &pluginCommon)
 
-	s.plugins[currentDir] = &pluginCommon
+	publicPluginsPath := filepath.Join(setting.StaticRootPath, "app/plugins")
+	bundledPluginsPath := s.cfg.BundledPluginsPath
+	isCore := strings.HasPrefix(pluginJSONFilePath, publicPluginsPath) || strings.HasPrefix(pluginJSONFilePath, bundledPluginsPath)
+	if pluginCommon.Signature == PluginSignatureValid || isCore {
+		s.plugins[currentDir] = &pluginCommon
+	} else {
+		s.log.Warn("Ignore unsigned plugin", "path", pluginJSONFilePath)
+	}
 
 	return nil
 }
