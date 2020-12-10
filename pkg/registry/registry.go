@@ -77,6 +77,10 @@ func RegisterOverride(fn OverrideServiceFunc) {
 	overrides = append(overrides, fn)
 }
 
+func ClearOverrides() {
+	overrides = nil
+}
+
 func getServicesWithOverrides() []*Descriptor {
 	slice := []*Descriptor{}
 	for _, s := range services {
