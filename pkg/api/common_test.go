@@ -158,8 +158,7 @@ func getContextHandler(t *testing.T, cfg *setting.Cfg) *contexthandler.ContextHa
 	sqlStore := sqlstore.InitTestDB(t)
 	remoteCacheSvc := &remotecache.RemoteCache{}
 	cfg.RemoteCacheOptions = &setting.RemoteCacheOptions{
-		Name:    "database",
-		ConnStr: "",
+		Name: "database",
 	}
 	userAuthTokenSvc := auth.NewFakeUserAuthTokenService()
 	renderSvc := &fakeRenderService{}
@@ -205,14 +204,12 @@ func setupScenarioContext(t *testing.T, url string) *scenarioContext {
 	require.NoError(t, err)
 	require.Truef(t, exists, "Views should be in %q", viewsPath)
 
-	ctxHdlr := getContextHandler(t, cfg)
-
 	sc.m = macaron.New()
 	sc.m.Use(macaron.Renderer(macaron.RenderOptions{
 		Directory: viewsPath,
 		Delims:    macaron.Delims{Left: "[[", Right: "]]"},
 	}))
-	sc.m.Use(ctxHdlr.Middleware)
+	sc.m.Use(getContextHandler(t, cfg).Middleware)
 
 	return sc
 }

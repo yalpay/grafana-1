@@ -29,11 +29,11 @@ func AddDefaultResponseHeaders(cfg *setting.Cfg) macaron.Handler {
 			}
 
 			if !strings.HasPrefix(ctx.Req.URL.Path, "/api/datasources/proxy/") {
-				AddNoCacheHeaders(ctx.Resp)
+				addNoCacheHeaders(ctx.Resp)
 			}
 
 			if !cfg.AllowEmbedding {
-				AddXFrameOptionsDenyHeader(w)
+				addXFrameOptionsDenyHeader(w)
 			}
 
 			addSecurityHeaders(w, cfg)
@@ -41,7 +41,7 @@ func AddDefaultResponseHeaders(cfg *setting.Cfg) macaron.Handler {
 	}
 }
 
-// addSecurityHeaders adds various HTTP(S) response headers that enable various security protections behaviors in the client's browser.
+// addSecurityHeaders adds HTTP(S) response headers that enable various security protections in the client's browser.
 func addSecurityHeaders(w macaron.ResponseWriter, cfg *setting.Cfg) {
 	if (cfg.Protocol == setting.HTTPSScheme || cfg.Protocol == setting.HTTP2Scheme) && cfg.StrictTransportSecurity {
 		strictHeaderValues := []string{fmt.Sprintf("max-age=%v", cfg.StrictTransportSecurityMaxAge)}
@@ -63,12 +63,12 @@ func addSecurityHeaders(w macaron.ResponseWriter, cfg *setting.Cfg) {
 	}
 }
 
-func AddNoCacheHeaders(w macaron.ResponseWriter) {
+func addNoCacheHeaders(w macaron.ResponseWriter) {
 	w.Header().Add("Cache-Control", "no-cache")
 	w.Header().Add("Pragma", "no-cache")
 	w.Header().Add("Expires", "-1")
 }
 
-func AddXFrameOptionsDenyHeader(w macaron.ResponseWriter) {
+func addXFrameOptionsDenyHeader(w macaron.ResponseWriter) {
 	w.Header().Add("X-Frame-Options", "deny")
 }
