@@ -43,7 +43,7 @@ func AddDefaultResponseHeaders(cfg *setting.Cfg, logger log.Logger) macaron.Hand
 				addXFrameOptionsDenyHeader(w)
 			}
 
-			if err := addSecurityHeaders(c, cfg); err != nil {
+			if err := addSecurityHeaders(c, w, cfg); err != nil {
 				log.Error(err.Error())
 			}
 		})
@@ -51,7 +51,7 @@ func AddDefaultResponseHeaders(cfg *setting.Cfg, logger log.Logger) macaron.Hand
 }
 
 // addSecurityHeaders adds HTTP(S) response headers that enable various security protections in the client's browser.
-func addSecurityHeaders(c *macaron.Context, cfg *setting.Cfg) error {
+func addSecurityHeaders(c *macaron.Context, w macaron.ResponseWriter, cfg *setting.Cfg) error {
 	if (cfg.Protocol == setting.HTTPSScheme || cfg.Protocol == setting.HTTP2Scheme) && cfg.StrictTransportSecurity {
 		strictHeaderValues := []string{fmt.Sprintf("max-age=%v", cfg.StrictTransportSecurityMaxAge)}
 		if cfg.StrictTransportSecurityPreload {
@@ -60,18 +60,18 @@ func addSecurityHeaders(c *macaron.Context, cfg *setting.Cfg) error {
 		if cfg.StrictTransportSecuritySubDomains {
 			strictHeaderValues = append(strictHeaderValues, "includeSubDomains")
 		}
-		c.Resp.Header().Add("Strict-Transport-Security", strings.Join(strictHeaderValues, "; "))
+		w.Header().Add("Strict-Transport-Security", strings.Join(strictHeaderValues, "; "))
 	}
 
 	if cfg.ContentTypeProtectionHeader {
-		c.Resp.Header().Add("X-Content-Type-Options", "nosniff")
+		w.Header().Add("X-Content-Type-Options", "nosniff")
 	}
 
 	if cfg.XSSProtectionHeader {
-		c.Resp.Header().Add("X-XSS-Protection", "1; mode=block")
+		w.Header().Add("X-XSS-Protection", "1; mode=block")
 	}
 
-	if err := addCSPHeader(c, cfg); err != nil {
+	if err := addCSPHeader(c, w, cfg); err != nil {
 		return err
 	}
 

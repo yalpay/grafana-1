@@ -13,7 +13,7 @@ import (
 )
 
 // addCSPHeader adds the Content Security Policy header.
-func addCSPHeader(c *macaron.Context, cfg *setting.Cfg) error {
+func addCSPHeader(c *macaron.Context, w macaron.ResponseWriter, cfg *setting.Cfg) error {
 	if !cfg.CSPEnabled {
 		return nil
 	}
@@ -28,7 +28,7 @@ func addCSPHeader(c *macaron.Context, cfg *setting.Cfg) error {
 	}
 	nonce := base64.RawStdEncoding.EncodeToString(buf[:])
 	val := strings.ReplaceAll(cfg.CSPTemplate, "$NONCE", fmt.Sprintf("'nonce-%s'", nonce))
-	c.Resp.Header().Set("Content-Security-Policy", val)
+	w.Header().Set("Content-Security-Policy", val)
 
 	ctx, ok := c.Data["ctx"].(*models.ReqContext)
 	if !ok {

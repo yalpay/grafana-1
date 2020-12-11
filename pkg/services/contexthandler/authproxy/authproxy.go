@@ -93,7 +93,7 @@ func New(cfg *setting.Cfg, options *Options) *AuthProxy {
 	}
 }
 
-// IsEnabled checks if the auth proxy is enabled
+// IsEnabled checks if the auth proxy is enabled.
 func (auth *AuthProxy) IsEnabled() bool {
 	// Bail if the setting is not enabled
 	return auth.cfg.AuthProxyEnabled
