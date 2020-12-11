@@ -55,6 +55,7 @@ interface SelectableLabel {
   values?: FacettableValue[];
   value?: string;
   hidden?: boolean;
+  facets?: number;
 }
 
 const buildSelector = (labels: SelectableLabel[]) =>
@@ -199,6 +200,7 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
     this.updateLabelState(name, nextValue, () => {
       const selectedLabels = this.state.labels.filter(label => label.selected).map(label => label.name);
       store.setObject(LAST_USED_LABELS_KEY, selectedLabels);
+      this.doFacetting();
     });
   };
 
@@ -251,7 +253,7 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
           ...value,
           hidden: false,
         }));
-        return { ...label, values, hidden: false };
+        return { ...label, values, hidden: false, facets: 0 };
       });
       this.setState({ labels }, () => {
         // Get fresh set of values
@@ -296,10 +298,10 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
           } else {
             existingValues = possibleValues.map(value => ({ name: value, hidden: false }));
           }
-          return { ...label, loading: false, values: existingValues };
+          return { ...label, loading: false, values: existingValues, facets: existingValues.length };
         }
         // Label is facetted out
-        return { ...label, loading: false, hidden: !possibleValues };
+        return { ...label, loading: false, hidden: !possibleValues, facets: 0 };
       });
       this.setState({ labels });
     } catch (error) {
@@ -354,6 +356,7 @@ class LokiLabelBrowserPopover extends React.Component<BrowserProps, BrowserState
                 loading={label.loading}
                 active={label.selected}
                 hidden={label.hidden}
+                facets={label.facets}
                 onClick={this.onClickLabel}
               />
             ))}
@@ -430,7 +433,7 @@ class UnthemedLokiLabelBrowser extends Component<Props, {}> {
               {this.pickerTriggerRef.current && (
                 <Popover
                   {...popperProps}
-                  show
+                  // show
                   placement="bottom-end"
                   referenceElement={this.pickerTriggerRef.current}
                   wrapperClassName={styles.wrapper}

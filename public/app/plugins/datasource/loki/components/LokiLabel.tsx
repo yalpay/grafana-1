@@ -17,11 +17,12 @@ export interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
   loading?: boolean;
   searchTerm?: RegExp;
   value?: string;
+  facets?: number;
   onClick?: OnLabelClick;
 }
 
 export const LokiLabel = forwardRef<HTMLElement, Props>(
-  ({ name, value, display, hidden, onClick, className, loading, searchTerm, active, style, ...rest }, ref) => {
+  ({ name, value, display, hidden, facets, onClick, className, loading, searchTerm, active, style, ...rest }, ref) => {
     const theme = useTheme();
     const styles = getLabelStyles(theme, name);
 
@@ -30,7 +31,10 @@ export const LokiLabel = forwardRef<HTMLElement, Props>(
         onClick(name, value, event);
       }
     };
-    const text = display || name;
+    let text = display || name;
+    if (facets) {
+      text = `${text} (${facets})`;
+    }
 
     return (
       <span
