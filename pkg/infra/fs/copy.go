@@ -75,7 +75,7 @@ func copyFileContents(src, dst string) (err error) {
 		return
 	}
 	defer func() {
-		if cerr := out.Close(); err == nil {
+		if cerr := out.Close(); cerr != nil && err == nil {
 			err = cerr
 		}
 	}()
