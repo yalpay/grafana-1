@@ -70,6 +70,7 @@ func RedirectFromLegacyDashboardSoloURL(cfg *setting.Cfg) func(c *models.ReqCont
 			if err != nil {
 				return
 			}
+
 			if renderRequest && strings.Contains(url, cfg.AppSubURL) {
 				url = strings.Replace(url, cfg.AppSubURL, "", 1)
 			}
