@@ -75,9 +75,13 @@ func TestMiddlewareDashboardRedirect_legacyEditPanel(t *testing.T) {
 
 		sc.fakeReqWithParams("GET", "/d/asd/dash?orgId=1&panelId=12&fullscreen&edit", map[string]string{}).exec()
 
+		assert.Equal(t, 301, sc.resp.Code)
+		// nolint:bodyclose
 		resp := sc.resp.Result()
-		resp.Body.Close()
-		require.Equal(t, 301, resp.StatusCode)
+		t.Cleanup(func() {
+			err := resp.Body.Close()
+			assert.NoError(t, err)
+		})
 		redirectURL, err := resp.Location()
 		require.NoError(t, err)
 		assert.Equal(t, "/d/asd/d/asd/dash?editPanel=12&orgId=1", redirectURL.String())
