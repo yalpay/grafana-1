@@ -64,11 +64,17 @@ func CopyFile(src, dst string) (err error) {
 // destination file exists, all it's contents will be replaced by the contents
 // of the source file.
 func copyFileContents(src, dst string) (err error) {
+	// Can ignore gosec G304 here, since it's a general file copying function
+	// nolint:gosec
 	in, err := os.Open(src)
 	if err != nil {
 		return
 	}
-	defer in.Close()
+	defer func() {
+		if e := in.Close(); err == nil && e != nil {
+			err = e
+		}
+	}()
 
 	out, err := os.Create(dst)
 	if err != nil {
