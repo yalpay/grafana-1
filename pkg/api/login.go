@@ -223,12 +223,12 @@ func (hs *HTTPServer) LoginPost(c *models.ReqContext, cmd dtos.LoginCommand) Res
 
 	err = hs.loginUserWithUser(user, c)
 	if err != nil {
-		response = Error(http.StatusInternalServerError, "Error while signing in user", err)
+		response = Error(http.StatusInternalServerError, "Giriş yapılırken hata oluştu!", err)
 		return response
 	}
 
 	result := map[string]interface{}{
-		"message": "Logged in",
+		"message": "Giriş yapıldı",
 	}
 
 	if redirectTo := c.GetCookie("redirect_to"); len(redirectTo) > 0 {
@@ -247,7 +247,7 @@ func (hs *HTTPServer) LoginPost(c *models.ReqContext, cmd dtos.LoginCommand) Res
 
 func (hs *HTTPServer) loginUserWithUser(user *models.User, c *models.ReqContext) error {
 	if user == nil {
-		return errors.New("could not login user")
+		return errors.New("Kullanıcı girişi başarısız!")
 	}
 
 	addr := c.RemoteAddr()
