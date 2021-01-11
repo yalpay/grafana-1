@@ -96,7 +96,7 @@ func main() {
 		buildTags = strings.Split(buildTagsRaw, ",")
 	}
 
-	log.Printf("Version: %s, Linux version: %s, Package Iteration: %s\n", version, linuxPackageVersion, linuxPackageIteration)
+	log.Printf("Version: %s, Linux Version: %s, Package Iteration: %s\n", version, linuxPackageVersion, linuxPackageIteration)
 
 	if flag.NArg() == 0 {
 		log.Println("Usage: go run build.go build")

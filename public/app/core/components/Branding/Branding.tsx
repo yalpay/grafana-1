@@ -8,7 +8,7 @@ export interface BrandComponentProps {
 }
 
 const LoginLogo: FC<BrandComponentProps> = ({ className }) => {
-  return <img className={className} src="public/img/logos/teknosys.png" alt="Teknosys" />;
+  return <img className={className} src="public/img/grafana_icon.svg" alt="Grafana" />;
 };
 
 const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
@@ -22,7 +22,7 @@ const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
 };
 
 const MenuLogo: FC<BrandComponentProps> = ({ className }) => {
-  return <img className={className} src="public/img/logos/teknosysLarge.svg" alt="Teknosys" />;
+  return <img className={className} src="public/img/grafana_icon.svg" alt="Grafana" />;
 };
 
 const LoginBoxBackground = () => {
@@ -39,13 +39,13 @@ export class Branding {
   static MenuLogo = MenuLogo;
   static LoginBoxBackground = LoginBoxBackground;
   static AppTitle = 'Grafana';
-  static LoginTitle = 'Welcome to TEKNOSYS Viewer';
+  static LoginTitle = 'Welcome to Grafana';
   static GetLoginSubTitle = () => {
     const slogans = [
-      "Don't get in the way of the data",
-      'Your single pane of glass',
-      'Built better together',
-      'Democratising data',
+      'Enerjinizi güneşten alın',
+      'TEKNOSYS Enerji Verileri Yönetimi',
+      'Veri Yönetim Merkezi',
+      'TEKNOSYS Güneş Enerji Sistemleri',
     ];
     const count = slogans.length;
     return slogans[Math.floor(Math.random() * count)];

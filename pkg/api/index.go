@@ -141,7 +141,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 		}
 		if c.OrgRole == models.ROLE_ADMIN || c.OrgRole == models.ROLE_EDITOR {
 			children = append(children, &dtos.NavLink{
-				Text: "Folder", SubTitle: "Create a new folder to organize your dashboards", Id: "folder",
+				Text: "Folder", SubTitle: "Tablolarınızı düzenlemek için klasör oluşturun", Id: "folder",
 				Icon: "folder-plus", Url: setting.AppSubUrl + "/dashboards/folder/new",
 			})
 		}
@@ -458,7 +458,7 @@ func (hs *HTTPServer) setIndexViewData(c *models.ReqContext) (*dtos.IndexViewDat
 func (hs *HTTPServer) Index(c *models.ReqContext) {
 	data, err := hs.setIndexViewData(c)
 	if err != nil {
-		c.Handle(500, "Failed to get settings", err)
+		c.Handle(hs.Cfg, 500, "Failed to get settings", err)
 		return
 	}
 	c.HTML(200, "index", data)
@@ -472,7 +472,7 @@ func (hs *HTTPServer) NotFoundHandler(c *models.ReqContext) {
 
 	data, err := hs.setIndexViewData(c)
 	if err != nil {
-		c.Handle(500, "Failed to get settings", err)
+		c.Handle(hs.Cfg, 500, "Failed to get settings", err)
 		return
 	}
 

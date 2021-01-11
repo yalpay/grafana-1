@@ -77,7 +77,7 @@ func (hs *HTTPServer) CookieOptionsFromCfg() cookies.CookieOptions {
 func (hs *HTTPServer) LoginView(c *models.ReqContext) {
 	viewData, err := setIndexViewData(hs, c)
 	if err != nil {
-		c.Handle(500, "Failed to get settings", err)
+		c.Handle(hs.Cfg, 500, "Failed to get settings", err)
 		return
 	}
 
@@ -117,7 +117,7 @@ func (hs *HTTPServer) LoginView(c *models.ReqContext) {
 			user := &models.User{Id: c.SignedInUser.UserId, Email: c.SignedInUser.Email, Login: c.SignedInUser.Login}
 			err := hs.loginUserWithUser(user, c)
 			if err != nil {
-				c.Handle(500, "Failed to sign in user", err)
+				c.Handle(hs.Cfg, 500, "Failed to sign in user", err)
 				return
 			}
 		}
@@ -202,7 +202,7 @@ func (hs *HTTPServer) LoginPost(c *models.ReqContext, cmd dtos.LoginCommand) Res
 	err := bus.Dispatch(authQuery)
 	authModule = authQuery.AuthModule
 	if err != nil {
-		response = Error(401, "Invalid username or password", err)
+		response = Error(401, "Geçersiz kullanıcı adı veya parola", err)
 		if errors.Is(err, login.ErrInvalidCredentials) || errors.Is(err, login.ErrTooManyLoginAttempts) || errors.Is(err,
 			models.ErrUserNotFound) {
 			return response
@@ -223,7 +223,7 @@ func (hs *HTTPServer) LoginPost(c *models.ReqContext, cmd dtos.LoginCommand) Res
 
 	err = hs.loginUserWithUser(user, c)
 	if err != nil {
-		response = Error(http.StatusInternalServerError, "Giriş yapılırken hata oluştu!", err)
+		response = Error(http.StatusInternalServerError, "Error while signing in user", err)
 		return response
 	}
 
@@ -247,7 +247,7 @@ func (hs *HTTPServer) LoginPost(c *models.ReqContext, cmd dtos.LoginCommand) Res
 
 func (hs *HTTPServer) loginUserWithUser(user *models.User, c *models.ReqContext) error {
 	if user == nil {
-		return errors.New("Kullanıcı girişi başarısız!")
+		return errors.New("could not login user")
 	}
 
 	addr := c.RemoteAddr()
