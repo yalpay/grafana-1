@@ -183,11 +183,12 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 		Url:        setting.AppSubUrl + "/",
 		SortWeight: dtos.WeightDashboard,
 		Children:   dashboardChildNavs,
-	})
+	})	
 
+	// finding the ordering of links...
 	if setting.ExploreEnabled && (c.OrgRole == models.ROLE_ADMIN || c.OrgRole == models.ROLE_EDITOR || setting.ViewersCanEdit) {
 		navTree = append(navTree, &dtos.NavLink{
-			Text:       "Explore",
+			Text:       "Administration",
 			Id:         "explore",
 			SubTitle:   "Explore your data",
 			Icon:       "compass",
@@ -205,7 +206,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 			Url:      setting.AppSubUrl + "/ngalerting",
 		})
 	}
-
+	
 	if c.IsSignedIn {
 		navTree = append(navTree, getProfileNode(c))
 	}
@@ -424,7 +425,7 @@ func (hs *HTTPServer) setIndexViewData(c *models.ReqContext) (*dtos.IndexViewDat
 		AppNameBodyClass:        getAppNameBodyClass(hs.License.HasValidLicense()),
 		FavIcon:                 "public/img/fav32.png",
 		AppleTouchIcon:          "public/img/apple-touch-icon.png",
-		AppTitle:                "Grafana",
+		AppTitle:                "Teknosys",
 		NavTree:                 navTree,
 		Sentry:                  &hs.Cfg.Sentry,
 	}

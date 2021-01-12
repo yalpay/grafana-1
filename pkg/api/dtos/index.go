@@ -34,13 +34,13 @@ const (
 	// any items with default weight.
 
 	WeightCreate = (iota - 20) * 100
-	WeightDashboard
-	WeightExplore
+	WeightDashboard	
 	WeightProfile
 	WeightAlerting
 	WeightPlugin
 	WeightConfig
 	WeightAdmin
+	WeightExplore
 	WeightHelp
 )
 
