@@ -1,11 +1,11 @@
 {
   "type": "datasource",
-  "name": "MySQL",
+  "name": "Inverter Logger",
   "id": "mysql",
   "category": "sql",
 
   "info": {
-    "description": "Data source for MySQL databases",
+    "description": "Logging Device for Current Voltage and Power",
     "author": {
       "name": "Grafana Labs",
       "url": "https://grafana.com"
