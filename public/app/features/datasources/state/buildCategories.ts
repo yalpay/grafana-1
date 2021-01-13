@@ -4,14 +4,9 @@ import { config } from '../../../core/config';
 
 export function buildCategories(plugins: DataSourcePluginMeta[]): DataSourcePluginCategory[] {
   const categories: DataSourcePluginCategory[] = [
-    { id: 'tsdb', title: 'Time series databases', plugins: [] },
-    { id: 'logging', title: 'Logging & document databases', plugins: [] },
-    { id: 'tracing', title: 'Distributed tracing', plugins: [] },
-    { id: 'sql', title: 'SQL', plugins: [] },
-    { id: 'cloud', title: 'Cloud', plugins: [] },
-    { id: 'enterprise', title: 'Enterprise plugins', plugins: [] },
-    { id: 'iot', title: 'Industrial & IoT', plugins: [] },
-    { id: 'other', title: 'Others', plugins: [] },
+    { id: 'sql', title: 'Orange Pi', plugins: [] },
+    { id: 'logging', title: 'Raspberry Pi', plugins: [] },
+    { id: 'other', title: 'Sensor', plugins: [] },
   ].filter(item => item);
 
   const categoryIndex: Record<string, DataSourcePluginCategory> = {};
@@ -66,7 +61,7 @@ export function buildCategories(plugins: DataSourcePluginMeta[]): DataSourcePlug
   }
 
   // Only show categories with plugins
-  return categories.filter(c => c.plugins.length > 0);
+  return categories.filter(c => c.plugins.length === 3);
 }
 
 function sortPlugins(plugins: DataSourcePluginMeta[]) {

@@ -185,18 +185,6 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 		Children:   dashboardChildNavs,
 	})	
 
-	// finding the ordering of links...
-	if setting.ExploreEnabled && (c.OrgRole == models.ROLE_ADMIN || c.OrgRole == models.ROLE_EDITOR || setting.ViewersCanEdit) {
-		navTree = append(navTree, &dtos.NavLink{
-			Text:       "Administration",
-			Id:         "explore",
-			SubTitle:   "Explore your data",
-			Icon:       "compass",
-			SortWeight: dtos.WeightExplore,
-			Url:        setting.AppSubUrl + "/explore",
-		})
-	}
-
 	if hs.Cfg.IsNgAlertEnabled() {
 		navTree = append(navTree, &dtos.NavLink{
 			Text:     "NgAlerting",
@@ -241,7 +229,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 
 	if c.OrgRole == models.ROLE_ADMIN {
 		configNodes = append(configNodes, &dtos.NavLink{
-			Text:        "Data Sources",
+			Text:        "Devices",
 			Icon:        "database",
 			Description: "Add and configure data sources",
 			Id:          "datasources",
@@ -268,26 +256,11 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 
 	if c.OrgRole == models.ROLE_ADMIN {
 		configNodes = append(configNodes, &dtos.NavLink{
-			Text:        "Plugins",
-			Id:          "plugins",
-			Description: "View and configure plugins",
-			Icon:        "plug",
-			Url:         setting.AppSubUrl + "/plugins",
-		})
-
-		configNodes = append(configNodes, &dtos.NavLink{
 			Text:        "Preferences",
 			Id:          "org-settings",
 			Description: "Organization preferences",
 			Icon:        "sliders-v-alt",
 			Url:         setting.AppSubUrl + "/org",
-		})
-		configNodes = append(configNodes, &dtos.NavLink{
-			Text:        "API Keys",
-			Id:          "apikeys",
-			Description: "Create & manage API keys",
-			Icon:        "key-skeleton-alt",
-			Url:         setting.AppSubUrl + "/org/apikeys",
 		})
 	}
 
@@ -295,7 +268,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 		navTree = append(navTree, &dtos.NavLink{
 			Id:         "cfg",
 			Text:       "Configuration",
-			SubTitle:   "Organization: " + c.OrgName,
+			SubTitle:   "Plant: " + c.OrgName,
 			Icon:       "cog",
 			Url:        configNodes[0].Url,
 			SortWeight: dtos.WeightConfig,

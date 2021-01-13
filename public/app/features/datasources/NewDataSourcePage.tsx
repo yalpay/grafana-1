@@ -174,7 +174,7 @@ export function getNavModel(): NavModel {
   const main = {
     icon: 'database',
     id: 'datasource-new',
-    text: 'Add data source',
+    text: 'Add device',
     href: 'datasources/new',
     subTitle: 'Choose a data source type',
   };
