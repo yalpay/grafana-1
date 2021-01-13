@@ -81,7 +81,7 @@ class NewDataSourcePage extends PureComponent<Props> {
             target="_blank"
             rel="noopener"
           >
-            Find more data source plugins on grafana.com
+            These devices can be categorized as well, discuss with Muhammed Hasan Güçlü! :)
           </LinkButton>
         </div>
       </>

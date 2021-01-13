@@ -1,11 +1,11 @@
 {
   "type": "datasource",
-  "name": "Microsoft SQL Server",
+  "name": "WS10 Logger",
   "id": "mssql",
   "category": "sql",
 
   "info": {
-    "description": "Data source for Microsoft SQL Server compatible databases",
+    "description": "Meteorolog Device configured for any conditions",
     "author": {
       "name": "Grafana Labs",
       "url": "https://grafana.com"

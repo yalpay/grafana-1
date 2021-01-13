@@ -1,11 +1,11 @@
 {
   "type": "datasource",
-  "name": "PostgreSQL",
+  "name": "String Monitor",
   "id": "postgres",
   "category": "sql",
 
   "info": {
-    "description": "Data source for PostgreSQL and compatible databases",
+    "description": "String Monitor Device, example BALA",
     "author": {
       "name": "Grafana Labs",
       "url": "https://grafana.com"
