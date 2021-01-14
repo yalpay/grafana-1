@@ -14,8 +14,8 @@ const OrgProfile: FC<Props> = ({ onSubmit, orgName }) => {
   return (
     <Form defaultValues={{ orgName }} onSubmit={({ orgName }: FormDTO) => onSubmit(orgName)}>
       {({ register }) => (
-        <FieldSet label="Organization profile">
-          <Field label="Organization name">
+        <FieldSet label="Plant profile">
+          <Field label="Plant name">
             <Input name="orgName" type="text" ref={register({ required: true })} />
           </Field>
 

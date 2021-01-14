@@ -61,7 +61,9 @@ export class DataSourceSettingsPage extends PureComponent<Props> {
 
   onSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-
+    this.props.dataSource.url = 'localhost:3306';
+    this.props.dataSource.user = 'admindb';
+    this.props.dataSource.password = 'serra';
     await this.props.updateDataSource({ ...this.props.dataSource });
 
     this.testDataSource();
@@ -69,14 +71,13 @@ export class DataSourceSettingsPage extends PureComponent<Props> {
 
   onTest = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-
     this.testDataSource();
   };
 
   onDelete = () => {
     appEvents.emit(CoreEvents.showConfirmModal, {
       title: 'Delete',
-      text: 'Are you sure you want to delete this data source?',
+      text: 'Are you sure you want to delete this device?',
       yesText: 'Delete',
       icon: 'trash-alt',
       onConfirm: () => {
@@ -107,6 +108,7 @@ export class DataSourceSettingsPage extends PureComponent<Props> {
   }
 
   testDataSource() {
+    console.log('<<<<<<<<<<<<<< testDataSource >>>>>>>>>>>>>>>>>>');
     const { dataSource, testDataSource } = this.props;
     testDataSource(dataSource.name);
   }

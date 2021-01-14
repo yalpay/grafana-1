@@ -256,7 +256,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 
 	if c.OrgRole == models.ROLE_ADMIN {
 		configNodes = append(configNodes, &dtos.NavLink{
-			Text:        "Preferences",
+			Text:        "Configuration",
 			Id:          "org-settings",
 			Description: "Organization preferences",
 			Icon:        "sliders-v-alt",
@@ -267,7 +267,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 	if len(configNodes) > 0 {
 		navTree = append(navTree, &dtos.NavLink{
 			Id:         "cfg",
-			Text:       "Configuration",
+			Text:       "Administration",
 			SubTitle:   "Plant: " + c.OrgName,
 			Icon:       "cog",
 			Url:        configNodes[0].Url,
