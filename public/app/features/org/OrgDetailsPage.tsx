@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { NavModel } from '@grafana/data';
 
 import Page from 'app/core/components/Page/Page';
-import OrgProfile from './OrgProfile';
 import SharedPreferences from 'app/core/components/SharedPreferences/SharedPreferences';
 import { loadOrganization, updateOrganization } from './state/actions';
 import { Organization, StoreState } from 'app/types';
@@ -39,7 +38,6 @@ export class OrgDetailsPage extends PureComponent<Props> {
         <Page.Contents isLoading={isLoading}>
           {!isLoading && (
             <VerticalGroup>
-              <OrgProfile onSubmit={this.onUpdateOrganization} orgName={organization.name} />
               <SharedPreferences resourceUri="org" />
             </VerticalGroup>
           )}

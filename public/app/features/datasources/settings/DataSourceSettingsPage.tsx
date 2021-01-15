@@ -64,6 +64,7 @@ export class DataSourceSettingsPage extends PureComponent<Props> {
     this.props.dataSource.url = 'localhost:3306';
     this.props.dataSource.user = 'admindb';
     this.props.dataSource.password = 'serra';
+    console.log(this.props);
     await this.props.updateDataSource({ ...this.props.dataSource });
 
     this.testDataSource();
@@ -108,7 +109,7 @@ export class DataSourceSettingsPage extends PureComponent<Props> {
   }
 
   testDataSource() {
-    console.log('<<<<<<<<<<<<<< testDataSource >>>>>>>>>>>>>>>>>>');
+    console.log(this.props);
     const { dataSource, testDataSource } = this.props;
     testDataSource(dataSource.name);
   }
