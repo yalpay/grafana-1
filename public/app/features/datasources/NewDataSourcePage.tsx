@@ -176,7 +176,7 @@ export function getNavModel(): NavModel {
     id: 'datasource-new',
     text: 'Add device',
     href: 'datasources/new',
-    subTitle: 'Choose a data source type',
+    subTitle: 'Choose device type',
   };
 
   return {
