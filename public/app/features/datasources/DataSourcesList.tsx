@@ -17,7 +17,7 @@ export interface Props {
 export class DataSourcesList extends PureComponent<Props> {
   render() {
     const { dataSources, layoutMode } = this.props;
-
+    dataSources.pop();
     const listStyle = classNames({
       'card-section': true,
       'card-list-layout-grid': layoutMode === LayoutModes.Grid,
