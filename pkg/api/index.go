@@ -135,7 +135,7 @@ func getAppLinks(c *models.ReqContext) ([]*dtos.NavLink, error) {
 func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dtos.NavLink, error) {
 	navTree := []*dtos.NavLink{}
 
-	if hasEditPerm {
+	/*if hasEditPerm {
 		children := []*dtos.NavLink{
 			{Text: "Dashboard", Icon: "apps", Url: setting.AppSubUrl + "/dashboard/new"},
 		}
@@ -157,7 +157,7 @@ func (hs *HTTPServer) getNavTree(c *models.ReqContext, hasEditPerm bool) ([]*dto
 			Children:   children,
 			SortWeight: dtos.WeightCreate,
 		})
-	}
+	}*/
 
 	dashboardChildNavs := []*dtos.NavLink{
 		{Text: "Home", Id: "home", Url: setting.AppSubUrl + "/", Icon: "home-alt", HideFromTabs: true},
